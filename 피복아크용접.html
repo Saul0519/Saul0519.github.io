@@ -1,0 +1,2670 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>피복아크용접 랜덤 문제 생성기</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#6ee7b7; --muted:#9aa6b2;
+      --glass: rgba(255,255,255,0.03);
+      font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      background:linear-gradient(180deg,#071022 0%,#081428 55%,#071124 100%);
+      color:#e6eef6; display:flex; justify-content:center; padding:36px;
+    }
+    .wrap{
+      width:100%; max-width:980px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      border-radius:12px; padding:20px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.7);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    header{display:flex; align-items:center; gap:16px; margin-bottom:12px}
+    header h1{font-size:20px; margin:0}
+
+    .controls{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:18px;
+    }
+
+    label{font-size:13px; color:var(--muted)}
+
+    select, input[type="number"]{
+      background:var(--glass); border:1px solid rgba(255,255,255,0.04);
+      color:inherit; padding:8px 10px; border-radius:8px; min-width:130px;
+    }
+
+    .btn{
+      background:linear-gradient(90deg,var(--accent), #34d399);
+      color:#042018; border:none; padding:10px 14px; border-radius:9px; cursor:pointer;
+      font-weight:700;
+    }
+
+    .quiz-area{display:grid; gap:12px; margin-top:8px}
+
+    .card{
+      background:rgba(255,255,255,0.02);
+      padding:14px; border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .q{font-weight:700; margin-bottom:6px; font-size:15px}
+    .opts{display:flex; flex-direction:column; gap:8px; margin-top:8px}
+    .opt{
+      display:flex; gap:10px; align-items:center; padding:8px;
+      border-radius:8px; cursor:pointer;
+      background:rgba(255,255,255,0.01);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+
+    .correct{border-left:4px solid #34d399}
+    .wrong{border-left:4px solid #ff7a7a}
+
+    .footer{display:flex; justify-content:space-between; margin-top:18px}
+
+    .small{font-size:13px; color:var(--muted)}
+
+    .result{
+      padding:12px; border-radius:10px;
+      background:rgba(0,150,100,0.08);
+      color:#7dffce; margin-bottom:10px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <h1>피복아크용접 랜덤 문제 생성기</h1>
+  </header>
+
+  <section class="controls card">
+    <div class="group">
+      <label>난이도</label><br>
+      <select id="difficulty">
+        <option value="easy">쉬움</option>
+        <option value="normal" selected>보통</option>
+        <option value="hard">어려움</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label>문제 수</label><br>
+      <input id="count" type="number" min="1" max="25" value="10" />
+    </div>
+
+    <div class="group">
+      <label>보기 섞기</label><br>
+      <select id="shuffle">
+        <option value="yes" selected>예</option>
+        <option value="no">아니오</option>
+      </select>
+    </div>
+
+    <button class="btn" id="generate">문제 생성</button>
+  </section>
+
+  <div id="quiz" class="quiz-area"></div>
+
+  <div class="footer">
+    <button class="btn" id="check" disabled>채점</button>
+    <button class="btn" id="regen" disabled style="background:linear-gradient(90deg,#f97316,#fb923c)">다시 출제</button>
+  </div>
+</div>
+
+<script>
+/* ============================
+   문제은행
+   ============================ */
+const QUESTION_BANK = [  {
+    id: 1,
+    difficulty: "easy",
+    q: "건조한 공기의 기본 성질이 아닌 것은?",
+    choices: ["무색", "무취", "수분을 포함함", "무미"],
+    answer: "수분을 포함함",
+    explain: "건조한 공기는 무색·무취·무미이며 수분을 포함하지 않는다."
+  },
+  {
+    id: 2,
+    difficulty: "easy",
+    q: "습한 공기를 압축할 때 발생하는 요소는?",
+    choices: ["드레인", "산소", "탄소", "윤활유"],
+    answer: "드레인",
+    explain: "습기 포함 공기를 압축하면 드레인이 발생한다."
+  },
+  {
+    id: 3,
+    difficulty: "easy",
+    q: "공기압 에너지원의 장점으로 옳은 것은?",
+    choices: ["오염이 심하다", "입력 전압이 높다", "청결하다", "압력이 너무 높다"],
+    answer: "청결하다",
+    explain: "공기는 누출되더라도 오염되지 않아 매우 청결하다."
+  },
+  {
+    id: 4,
+    difficulty: "easy",
+    q: "공기압 에너지 전달 방식은?",
+    choices: ["배관", "벨트", "체인", "톱니바퀴"],
+    answer: "배관",
+    explain: "공기압은 배관을 통해 힘을 전달한다."
+  },
+  {
+    id: 5,
+    difficulty: "easy",
+    q: "공기압의 속도 조절이 어려운 이유는?",
+    choices: ["압축성 때문", "전압 때문", "모터 속도 때문", "온도 때문"],
+    answer: "압축성 때문",
+    explain: "공기는 압축성이 있어 정밀 속도 제어가 어렵다."
+  },
+
+  {
+    id: 6,
+    difficulty: "easy",
+    q: "공기압 제어에서 발생하는 단점은?",
+    choices: ["소음 발생", "전류 부족", "과열", "진동 없음"],
+    answer: "소음 발생",
+    explain: "배기 소음이 공기압 시스템의 대표 단점이다."
+  },
+  {
+    id: 7,
+    difficulty: "easy",
+    q: "유압과 비교했을 때 공기압의 출력 특성은?",
+    choices: ["좋음", "나쁨", "대단히 높음", "과도하게 높음"],
+    answer: "나쁨",
+    explain: "공기압은 출력이 작다."
+  },
+  {
+    id: 8,
+    difficulty: "easy",
+    q: "공기압 시스템의 일반 산업용 압력 범위는?",
+    choices: ["1~2 kgf/cm²", "4~6 kgf/cm²", "7~9 kgf/cm²", "10 kgf/cm² 이상"],
+    answer: "4~6 kgf/cm²",
+    explain: "산업용 기준 압력 범위는 4~6 kgf/cm²이다."
+  },
+  {
+    id: 9,
+    difficulty: "easy",
+    q: "공기압 발생 장치에 포함되지 않는 것은?",
+    choices: ["압축기", "냉각기", "탱크", "세탁기"],
+    answer: "세탁기",
+    explain: "세탁기는 공기압 발생부와 관계 없다."
+  },
+  {
+    id: 10,
+    difficulty: "easy",
+    q: "서비스 유닛의 구성 요소가 아닌 것은?",
+    choices: ["필터", "레귤레이터", "루브리케이터", "압력 용접기"],
+    answer: "압력 용접기",
+    explain: "서비스 유닛은 FRL(필터·레귤레이터·루브리케이터)로 구성된다."
+  },
+
+  {
+    id: 11,
+    difficulty: "easy",
+    q: "ISO1219에서 공급 포트는?",
+    choices: ["A", "R", "P", "X"],
+    answer: "P",
+    explain: "P는 공급 포트 표기이다."
+  },
+  {
+    id: 12,
+    difficulty: "easy",
+    q: "방향 제어 밸브의 상태 표현 형태는?",
+    choices: ["원", "삼각형", "사각형", "별"],
+    answer: "사각형",
+    explain: "밸브의 상태는 사각형으로 표시한다."
+  },
+  {
+    id: 13,
+    difficulty: "easy",
+    q: "솔레노이드 밸브가 사용하는 힘은?",
+    choices: ["탄성력", "전자석의 힘", "바람", "빛"],
+    answer: "전자석의 힘",
+    explain: "솔레노이드는 전자석을 사용한다."
+  },
+  {
+    id: 14,
+    difficulty: "easy",
+    q: "셔틀 밸브의 다른 이름은?",
+    choices: ["AND", "OR", "NOT", "XOR"],
+    answer: "OR",
+    explain: "셔틀 밸브는 OR 밸브라고도 한다."
+  },
+  {
+    id: 15,
+    difficulty: "easy",
+    q: "교축밸브는 무엇을 조절하는가?",
+    choices: ["전압", "전류", "관로 크기", "압력 용기"],
+    answer: "관로 크기",
+    explain: "교축밸브는 유량 조절을 위해 관로 크기를 조절한다."
+  },
+
+  {
+    id: 16,
+    difficulty: "easy",
+    q: "단동 실린더가 수행하는 작업이 아닌 것은?",
+    choices: ["클램핑", "프레싱", "이젝팅", "왕복 작업"],
+    answer: "왕복 작업",
+    explain: "단동 실린더는 한 방향만 가능하다."
+  },
+  {
+    id: 17,
+    difficulty: "easy",
+    q: "PLC 장점이 아닌 것은?",
+    choices: ["접점 마모 없음", "빠른 처리 속도", "유지보수 편리", "교육이 불필요"],
+    answer: "교육이 불필요",
+    explain: "PLC는 프로그래밍 교육이 필요하다."
+  },
+  {
+    id: 18,
+    difficulty: "easy",
+    q: "PLC 언어 중 블록 기반 그래픽 방식은?",
+    choices: ["LAD", "FBD", "STL", "IL"],
+    answer: "FBD",
+    explain: "FBD는 Function Block Diagram 방식이다."
+  },
+  {
+    id: 19,
+    difficulty: "easy",
+    q: "입력 신호가 끊어진 직후 1스캔만 동작하는 것은?",
+    choices: ["상승펄스", "하강펄스", "출력코일", "세트코일"],
+    answer: "하강펄스",
+    explain: "하강펄스는 Off 순간 1스캔 동안 동작한다."
+  },
+  {
+    id: 20,
+    difficulty: "easy",
+    q: "A접점의 정상 상태는?",
+    choices: ["닫힘", "열림", "단락", "중단"],
+    answer: "열림",
+    explain: "A접점은 평상시 개방 상태이다."
+  },
+  {
+    id: 21,
+    difficulty: "easy",
+    q: "세트 출력 코일의 특징은?",
+    choices: ["1회 동작 후 유지됨", "즉시 꺼짐", "펄스 동작", "지속 불가"],
+    answer: "1회 동작 후 유지됨",
+    explain: "세트 코일은 조건이 해제되어도 ON 상태를 유지한다."
+  },
+  {
+    id: 22,
+    difficulty: "easy",
+    q: "리셋 출력 코일의 기능은?",
+    choices: ["출력 유지", "세트 코일 해제", "전원 공급", "속도 조정"],
+    answer: "세트 코일 해제",
+    explain: "Reset 코일은 Set 코일을 끄는 역할을 한다."
+  },
+  {
+    id: 23,
+    difficulty: "easy",
+    q: "PLC 프로그램 작성 과정 1단계는?",
+    choices: ["프로그램 전송", "기계어 변환", "프로그램 작성", "실행"],
+    answer: "프로그램 작성",
+    explain: "PLC 개발 절차의 첫 단계는 프로그램을 작성하는 것이다."
+  },
+  {
+    id: 24,
+    difficulty: "easy",
+    q: "R08CPU의 프로그램 용량은?",
+    choices: ["80K", "160K", "320K", "5M"],
+    answer: "80K",
+    explain: "R08CPU의 프로그램 용량은 80K 스텝이다."
+  },
+  {
+    id: 25,
+    difficulty: "easy",
+    q: "솔레노이드 직접작동형 밸브의 특징은?",
+    choices: ["대용량", "단가가 저렴", "전기소모 적음", "소음 적음"],
+    answer: "단가가 저렴",
+    explain: "직접작동형 밸브는 소형·저가 구조이다."
+  },
+
+  {
+    id: 26,
+    difficulty: "easy",
+    q: "간접작동형 밸브에서 솔레노이드가 작동시키는 것은?",
+    choices: ["주밸브", "파일럿 밸브", "필터", "실린더"],
+    answer: "파일럿 밸브",
+    explain: "간접형은 파일럿 밸브가 주밸브를 움직인다."
+  },
+  {
+    id: 27,
+    difficulty: "easy",
+    q: "셔틀 밸브의 입구는 몇 개인가?",
+    choices: ["1개", "2개 이상", "3개만 가능", "없음"],
+    answer: "2개 이상",
+    explain: "셔틀 밸브는 2개 이상 입력을 가진다."
+  },
+  {
+    id: 28,
+    difficulty: "easy",
+    q: "단동 실린더의 복귀 방식은?",
+    choices: ["압축공기", "중력", "내장 스프링", "수압"],
+    answer: "내장 스프링",
+    explain: "단동 실린더는 스프링으로 복귀한다."
+  },
+  {
+    id: 29,
+    difficulty: "easy",
+    q: "공기압 출력이 유압에 비해 낮은 이유는?",
+    choices: ["공기가 무거워서", "압축성 때문", "전기가 없어서", "마찰 때문"],
+    answer: "압축성 때문",
+    explain: "압축성으로 인해 큰 힘을 내기 어렵다."
+  },
+  {
+    id: 30,
+    difficulty: "easy",
+    q: "PLC에서 타이머 기능을 사용할 수 있는 이유는?",
+    choices: ["기계적 접점 사용", "전자제어 방식", "압력 변화 때문", "속도 느림"],
+    answer: "전자제어 방식",
+    explain: "PLC는 전자식이므로 연산 및 타이머가 가능하다."
+  },
+
+  {
+    id: 31,
+    difficulty: "easy",
+    q: "ISO5599에서 공급포트 번호는?",
+    choices: ["1", "2", "3", "5"],
+    answer: "1",
+    explain: "ISO5599에서 1번 포트는 공급 포트이다."
+  },
+  {
+    id: 32,
+    difficulty: "easy",
+    q: "작업 포트(A/B)는 ISO1219에서 무엇으로 표시하는가?",
+    choices: ["P", "R", "A/B", "T"],
+    answer: "A/B",
+    explain: "작업 포트는 A, B로 표시한다."
+  },
+  {
+    id: 33,
+    difficulty: "easy",
+    q: "방향 제어 밸브의 화살표는 무엇을 의미하는가?",
+    choices: ["압력", "방향", "속도", "전류"],
+    answer: "방향",
+    explain: "화살표는 유체가 흐르는 방향을 나타낸다."
+  },
+  {
+    id: 34,
+    difficulty: "easy",
+    q: "서비스 유닛에서 압력을 일정하게 유지하는 장치는?",
+    choices: ["필터", "레귤레이터", "루브리케이터", "배기밸브"],
+    answer: "레귤레이터",
+    explain: "레귤레이터는 압력을 일정하게 유지한다."
+  },
+  {
+    id: 35,
+    difficulty: "easy",
+    q: "공기압의 장점 중 잘못된 것은?",
+    choices: ["보관성 우수", "청결함", "배관으로 힘 전달", "매우 큰 힘 가능"],
+    answer: "매우 큰 힘 가능",
+    explain: "공기압은 큰 힘 출력이 어렵다."
+  },
+
+  {
+    id: 36,
+    difficulty: "easy",
+    q: "공기압 속도 제어가 나쁜 이유는?",
+    choices: ["유압 때문", "기름 때문", "압축성 때문", "전기 문제"],
+    answer: "압축성 때문",
+    explain: "공기의 압축성 때문에 속도 제어가 어렵다."
+  },
+  {
+    id: 37,
+    difficulty: "easy",
+    q: "배기 시 발생하는 공기압 시스템의 단점은?",
+    choices: ["냄새", "진동", "소음", "고장"],
+    answer: "소음",
+    explain: "공기 배기 소음이 크다."
+  },
+  {
+    id: 38,
+    difficulty: "easy",
+    q: "PLC의 유지보수가 쉬운 이유는?",
+    choices: ["기계식 구조", "접점 없음", "전자식 제어", "배선 없음"],
+    answer: "전자식 제어",
+    explain: "전자식 제어라 수정과 진단이 쉽다."
+  },
+  {
+    id: 39,
+    difficulty: "easy",
+    q: "PLC 실행 절차 마지막 단계는?",
+    choices: ["프로그램 수정", "다운로드", "실행", "기계어 변환"],
+    answer: "실행",
+    explain: "전송 후 실행한다."
+  },
+  {
+    id: 40,
+    difficulty: "easy",
+    q: "PLC의 단점은?",
+    choices: ["접점 마모 없음", "프로그램 수정 쉬움", "가격 비쌈", "빠른 처리"],
+    answer: "가격 비쌈",
+    explain: "PLC 초기 도입비용이 높다."
+  },
+
+  {
+    id: 41,
+    difficulty: "easy",
+    q: "FBD 언어의 장점은?",
+    choices: ["텍스트 기반", "회로와 유사", "반응 느림", "사용 불가능"],
+    answer: "회로와 유사",
+    explain: "FBD는 블록 기반으로 직관적이다."
+  },
+  {
+    id: 42,
+    difficulty: "easy",
+    q: "SM410(0.1초 클록)은 어떻게 동작하는가?",
+    choices: ["1초마다", "0.1초마다 ON/OFF", "항상 ON", "항상 OFF"],
+    answer: "0.1초마다 ON/OFF",
+    explain: "0.1초 간격으로 상태가 변한다."
+  },
+  {
+    id: 43,
+    difficulty: "easy",
+    q: "데이터 전송 명령 기능은?",
+    choices: ["더함", "뺌", "복사", "시프트"],
+    answer: "복사",
+    explain: "S값을 D로 보내는 단순 전송 기능이다."
+  },
+  {
+    id: 44,
+    difficulty: "easy",
+    q: "데이터 인크리먼트의 기능은?",
+    choices: ["데이터 감소", "데이터 증가", "데이터 저장 불가", "데이터 삭제"],
+    answer: "데이터 증가",
+    explain: "지정 데이터에 +1을 수행한다."
+  },
+  {
+    id: 45,
+    difficulty: "easy",
+    q: "교류를 직류로 변환하는 데 사용되는 장치는?",
+    choices: ["SCR", "릴레이", "필터", "모터"],
+    answer: "SCR",
+    explain: "SCR은 교류를 제어하여 직류 전압으로 변환한다."
+  },
+
+  {
+    id: 46,
+    difficulty: "easy",
+    q: "정지 레오나드 방식의 속도 제어 원리는?",
+    choices: ["압력 제어", "전류 세기 조절", "SCR 점호각 조절", "배관 변경"],
+    answer: "SCR 점호각 조절",
+    explain: "SCR의 점호각을 조절해 직류 전압을 제어한다."
+  },
+  {
+    id: 47,
+    difficulty: "easy",
+    q: "정지 레오나드 방식의 장점은?",
+    choices: ["승차감 좋음", "유지보수 쉬움", "속도 제어 안됨", "출력 감소"],
+    answer: "승차감 좋음",
+    explain: "SCR 제어로 정밀 속도 제어가 가능하여 승차감이 좋다."
+  },
+  {
+    id: 48,
+    difficulty: "easy",
+    q: "정지 레오나드는 어떤 전동기를 제어하는가?",
+    choices: ["유도전동기", "직류 전동기", "스테핑 모터", "서보 모터"],
+    answer: "직류 전동기",
+    explain: "SCR 제어로 직류 전동기의 속도를 조절한다."
+  },
+  {
+    id: 49,
+    difficulty: "easy",
+    q: "R16CPU의 프로그램 스텝 용량은?",
+    choices: ["80K", "160K", "320K", "10M"],
+    answer: "160K",
+    explain: "R16CPU는 160K 스텝까지 저장 가능."
+  },
+  {
+    id: 50,
+    difficulty: "easy",
+    q: "PLC에서 외부 노이즈 대책이 필요한 이유는?",
+    choices: ["전압이 높아서", "프로그램이 복잡해서", "전자식 장치라 영향을 받기 때문", "소음 때문"],
+    answer: "전자식 장치라 영향을 받기 때문",
+    explain: "PLC는 전자 장비이므로 노이즈에 민감하다."
+  },
+
+  {
+    id: 51,
+    difficulty: "easy",
+    q: "공기압 장치의 필터 역할은?",
+    choices: ["압력 조절", "불순물 제거", "윤활", "속도 증가"],
+    answer: "불순물 제거",
+    explain: "필터는 수분과 먼지를 제거한다."
+  },
+  {
+    id: 52,
+    difficulty: "easy",
+    q: "루브리케이터는 어떤 기능을 수행하는가?",
+    choices: ["기압 공급", "윤활 공급", "배기", "전원 강화"],
+    answer: "윤활 공급",
+    explain: "기기 내부의 움직임을 부드럽게 한다."
+  },
+  {
+    id: 53,
+    difficulty: "easy",
+    q: "배관을 통한 힘 전달의 장점은?",
+    choices: ["고장 많음", "제약 적음", "매우 느림", "부피 큼"],
+    answer: "제약 적음",
+    explain: "배관은 다양한 방향으로 설치할 수 있다."
+  },
+  {
+    id: 54,
+    difficulty: "easy",
+    q: "단동 실린더는 어떤 작업에 적합한가?",
+    choices: ["클램핑", "왕복 이동", "고출력 이동", "정밀 제어"],
+    answer: "클램핑",
+    explain: "단동 실린더는 한 방향 동작만 한다."
+  },
+  {
+    id: 55,
+    difficulty: "easy",
+    q: "PLC 프로그램 수정이 쉬운 이유는?",
+    choices: ["릴레이 방식", "전자 방식", "고정식 회로", "수동 조작"],
+    answer: "전자 방식",
+    explain: "전자식 제어로 프로그램만 수정하면 된다."
+  },
+
+  {
+    id: 56,
+    difficulty: "easy",
+    q: "SM404는 언제 ON인가?",
+    choices: ["항상 ON", "전원 켜진 직후 1스캔", "0.1초마다", "0.01초마다"],
+    answer: "전원 켜진 직후 1스캔",
+    explain: "SM404는 RUN 후 딱 1스캔만 ON 된다."
+  },
+  {
+    id: 57,
+    difficulty: "easy",
+    q: "데이터 시프트 기능은 무엇을 하는가?",
+    choices: ["삭제", "이동", "복사", "전송"],
+    answer: "이동",
+    explain: "왼쪽으로 지정 자릿수만큼 이동시키는 기능이다."
+  },
+  {
+    id: 58,
+    difficulty: "easy",
+    q: "정지 레오나드 방식의 주 용도는?",
+    choices: ["저속 기계", "고속 엘리베이터", "사무기기", "난방기"],
+    answer: "고속 엘리베이터",
+    explain: "정밀 제어가 요구되는 고속 엘리베이터에 사용된다."
+  },
+  {
+    id: 59,
+    difficulty: "easy",
+    q: "공기압 장치가 청결한 이유는?",
+    choices: ["공기가 무거워서", "누출되어도 오염이 없어서", "기름으로 가동해서", "가열되기 때문"],
+    answer: "누출되어도 오염이 없어서",
+    explain: "공기는 환경 오염이 없다."
+  },
+  {
+    id: 60,
+    difficulty: "easy",
+    q: "공기압 시스템에서 속도 제어가 좋지 않은 평가를 받는 이유는?",
+    choices: ["유압 때문", "온도 상승", "압축성", "전류 부족"],
+    answer: "압축성",
+    explain: "압축성으로 인해 정밀 속도 제어가 어렵다."
+  },
+    {
+    id: 61,
+    difficulty: "easy",
+    q: "공기압 시스템에서 드레인이 발생하는 이유는?",
+    choices: ["압력 상승", "습기 응축", "과전류", "소음 증가"],
+    answer: "습기 응축",
+    explain: "공기 속 수분이 압축되며 드레인이 발생한다."
+  },
+  {
+    id: 62,
+    difficulty: "easy",
+    q: "습공기에서 제거해야 하는 것은?",
+    choices: ["수분과 먼지", "전류", "기름", "화학물질"],
+    answer: "수분과 먼지",
+    explain: "습공기에는 수분과 먼지가 포함되므로 제거가 필요하다."
+  },
+  {
+    id: 63,
+    difficulty: "easy",
+    q: "공기압 에너지원이 청결한 이유는?",
+    choices: ["기름이 많아서", "압축이 잘돼서", "유출되어도 오염되지 않아서", "전기식이어서"],
+    answer: "유출되어도 오염되지 않아서",
+    explain: "공기는 누출되어도 환경 오염이 없다."
+  },
+  {
+    id: 64,
+    difficulty: "easy",
+    q: "공기압 시스템에서 일반 산업용 압력 범위는?",
+    choices: ["0~2 kgf/cm²", "4~6 kgf/cm²", "10~12 kgf/cm²", "20~30 kgf/cm²"],
+    answer: "4~6 kgf/cm²",
+    explain: "일반적인 공기압 장치는 4~6 범위를 사용한다."
+  },
+  {
+    id: 65,
+    difficulty: "easy",
+    q: "공기압 에너지원의 큰 장점은?",
+    choices: ["쉽게 구할 수 있음", "전력 소모 적음", "유압보다 강함", "출력 큼"],
+    answer: "쉽게 구할 수 있음",
+    explain: "공기를 압축하여 간단히 동력을 얻을 수 있다."
+  },
+
+  {
+    id: 66,
+    difficulty: "easy",
+    q: "공기압 시스템의 대표적인 단점은?",
+    choices: ["청결함", "압축성", "가격 저렴", "소음 없음"],
+    answer: "압축성",
+    explain: "압축성 때문에 정밀 제어가 어렵다."
+  },
+  {
+    id: 67,
+    difficulty: "easy",
+    q: "공기압 시스템에서 소음이 발생하는 과정은?",
+    choices: ["누출", "배기", "가열", "냉각"],
+    answer: "배기",
+    explain: "배기 시 공기가 빠져나가면서 소음이 생긴다."
+  },
+  {
+    id: 68,
+    difficulty: "easy",
+    q: "유량 제어 밸브의 대표 예는?",
+    choices: ["셔틀 밸브", "교축 밸브", "솔레노이드 밸브", "릴리프 밸브"],
+    answer: "교축 밸브",
+    explain: "교축은 유량을 조절하는 대표 밸브다."
+  },
+  {
+    id: 69,
+    difficulty: "easy",
+    q: "송풍 압력이 낮고 속도 제어가 어려운 제어 방식은?",
+    choices: ["유압", "공기압", "전기식", "기계식"],
+    answer: "공기압",
+    explain: "공기압은 압축성 때문에 정밀 제어가 어렵다."
+  },
+  {
+    id: 70,
+    difficulty: "easy",
+    q: "PLC가 릴레이 제어보다 좋은 이유는?",
+    choices: ["더 크다", "무겁다", "접점 마모 없음", "속도 느림"],
+    answer: "접점 마모 없음",
+    explain: "접점이 전자식이므로 마모가 없다."
+  },
+
+  {
+    id: 71,
+    difficulty: "easy",
+    q: "PLC가 프로그램 수정에 유리한 이유는?",
+    choices: ["기계식 접점 사용", "전기식 제어", "배선 변경 필요", "속도 느림"],
+    answer: "전기식 제어",
+    explain: "단순히 프로그램만 수정하면 된다."
+  },
+  {
+    id: 72,
+    difficulty: "easy",
+    q: "PLC에서 1스캔 후 ON되는 특수 접점은?",
+    choices: ["SM404", "SM410", "SM409", "SM300"],
+    answer: "SM404",
+    explain: "RUN 후 1스캔만 ON이다."
+  },
+  {
+    id: 73,
+    difficulty: "easy",
+    q: "PLC에서 타이머와 카운터 기능을 사용할 수 있는 이유는?",
+    choices: ["전기식 처리", "압축성", "배선 단순", "유압 방식"],
+    answer: "전기식 처리",
+    explain: "전자 제어이므로 논리 연산이 가능하다."
+  },
+  {
+    id: 74,
+    difficulty: "easy",
+    q: "데이터 뺄셈 명령은 어떤 방식인가?",
+    choices: ["D=S+D", "D=S-D", "D=D-S", "D=0"],
+    answer: "D=D-S",
+    explain: "뺄셈 연산은 목적지에서 소스 값을 빼는 방식이다."
+  },
+  {
+    id: 75,
+    difficulty: "easy",
+    q: "PLC FBD 언어는 무엇의 약자인가?",
+    choices: ["Flow Block Diagram", "Function Block Diagram", "Field Base Diagram", "Fast Base Drive"],
+    answer: "Function Block Diagram",
+    explain: "FBD는 기능 블록 다이어그램이다."
+  },
+
+  {
+    id: 76,
+    difficulty: "easy",
+    q: "공기압 방향 제어 밸브는 무엇으로 표시하는가?",
+    choices: ["원", "사각형", "세모", "별표"],
+    answer: "사각형",
+    explain: "각 위치를 사각형으로 나타낸다."
+  },
+  {
+    id: 77,
+    difficulty: "easy",
+    q: "공기압에서 흐름의 방향은 무엇으로 표시하는가?",
+    choices: ["점선", "화살표", "사각형", "원"],
+    answer: "화살표",
+    explain: "화살표는 유체 방향을 의미한다."
+  },
+  {
+    id: 78,
+    difficulty: "easy",
+    q: "ISO1219에서 공급포트는 무엇인가?",
+    choices: ["A", "B", "P", "R"],
+    answer: "P",
+    explain: "P는 공급포트를 의미한다."
+  },
+  {
+    id: 79,
+    difficulty: "easy",
+    q: "ISO1219에서 작업 포트는 무엇인가?",
+    choices: ["X/Y", "A/B", "P", "R"],
+    answer: "A/B",
+    explain: "A, B는 작업 포트이다."
+  },
+  {
+    id: 80,
+    difficulty: "easy",
+    q: "솔레노이드 밸브는 어떤 힘을 이용하는가?",
+    choices: ["공기압", "전자석", "유압", "기계력"],
+    answer: "전자석",
+    explain: "전자석으로 방향을 전환한다."
+  },
+
+  {
+    id: 81,
+    difficulty: "easy",
+    q: "직접 작동형 솔레노이드 밸브의 장점은?",
+    choices: ["대용량", "고가", "소용량", "전기 많이 사용"],
+    answer: "소용량",
+    explain: "작은 용량에서 유리하다."
+  },
+  {
+    id: 82,
+    difficulty: "easy",
+    q: "간접 작동형 밸브의 장점은?",
+    choices: ["소음 큼", "발열 큼", "대용량 가능", "비쌈"],
+    answer: "대용량 가능",
+    explain: "파일럿 작동으로 큰 밸브 제어가 가능하다."
+  },
+  {
+    id: 83,
+    difficulty: "easy",
+    q: "셔틀 밸브는 다른 말로 무엇인가?",
+    choices: ["AND 밸브", "OR 밸브", "NOT 밸브", "SHIFT 밸브"],
+    answer: "OR 밸브",
+    explain: "OR 동작과 같기 때문에 OR 밸브이다."
+  },
+  {
+    id: 84,
+    difficulty: "easy",
+    q: "교축 밸브는 무엇을 조절하는가?",
+    choices: ["전압", "공기량", "전류", "코일"],
+    answer: "공기량",
+    explain: "공기의 유량을 조절한다."
+  },
+  {
+    id: 85,
+    difficulty: "easy",
+    q: "단동 실린더는 몇 방향 동작이 가능한가?",
+    choices: ["1방향", "2방향", "3방향", "4방향"],
+    answer: "1방향",
+    explain: "한 방향만 동작한다."
+  },
+
+  {
+    id: 86,
+    difficulty: "easy",
+    q: "단동 실린더의 적용 예는?",
+    choices: ["왕복 이동", "프레싱", "이젝팅", "고속 주행"],
+    answer: "이젝팅",
+    explain: "한 방향 동작에 적합하다."
+  },
+  {
+    id: 87,
+    difficulty: "easy",
+    q: "PLC의 단점 중 하나는?",
+    choices: ["속도 느림", "프로그램 수정 어려움", "소프트웨어 상이함", "환경 오염"],
+    answer: "소프트웨어 상이함",
+    explain: "회사별 소프트웨어가 달라 호환성이 떨어질 수 있다."
+  },
+  {
+    id: 88,
+    difficulty: "easy",
+    q: "PLC는 어떤 종류의 출력 코일이 지속적으로 ON을 유지하는가?",
+    choices: ["리셋 코일", "출력 코일", "세트 출력 코일", "펄스 코일"],
+    answer: "세트 출력 코일",
+    explain: "조건이 해제되어도 유지된다."
+  },
+  {
+    id: 89,
+    difficulty: "easy",
+    q: "데이터 전송 기능은 무엇을 수행하는가?",
+    choices: ["수학적 연산", "S값을 D로 복사", "전원을 차단", "속도 제어"],
+    answer: "S값을 D로 복사",
+    explain: "단순한 값 전송이다."
+  },
+  {
+    id: 90,
+    difficulty: "easy",
+    q: "정지 레오나드 방식은 어떤 장치에 주로 쓰이는가?",
+    choices: ["선풍기", "저속 컨베이어", "고속 엘리베이터", "전기난로"],
+    answer: "고속 엘리베이터",
+    explain: "정밀 제어가 필요한 고속 엘리베이터에 쓰인다."
+  },
+
+  {
+    id: 91,
+    difficulty: "easy",
+    q: "정지 레오나드 방식은 무엇을 제어하여 속도를 조절하는가?",
+    choices: ["압력", "점호각", "유량", "마찰력"],
+    answer: "점호각",
+    explain: "SCR 점호각을 제어한다."
+  },
+  {
+    id: 92,
+    difficulty: "easy",
+    q: "R16CPU의 데이터 메모리 용량은?",
+    choices: ["5M", "10M", "160K", "640K"],
+    answer: "10M",
+    explain: "R16CPU는 10M의 데이터 메모리를 가진다."
+  },
+  {
+    id: 93,
+    difficulty: "easy",
+    q: "PLC 처리 절차 중 프로그램 전송 다음 단계는?",
+    choices: ["복사", "실행", "편집", "리셋"],
+    answer: "실행",
+    explain: "전송 후 실행된다."
+  },
+  {
+    id: 94,
+    difficulty: "easy",
+    q: "FBD는 어떤 형태의 프로그래밍인가?",
+    choices: ["텍스트 기반", "그래픽 기반", "코드 기반", "수동 제어"],
+    answer: "그래픽 기반",
+    explain: "블록 기반 그래픽 프로그래밍 언어이다."
+  },
+  {
+    id: 95,
+    difficulty: "easy",
+    q: "공기압 시스템의 소음 수준은?",
+    choices: ["거의 없음", "중간", "큼", "매우 낮음"],
+    answer: "큼",
+    explain: "배기 소음이 큰 편이다."
+  },
+
+  {
+    id: 96,
+    difficulty: "easy",
+    q: "공기압의 동력 발생 특성은?",
+    choices: ["나쁨", "다소 쉬움", "매우 어려움", "불가능"],
+    answer: "다소 쉬움",
+    explain: "공기압은 동력 발생이 쉬운 편이다."
+  },
+  {
+    id: 97,
+    difficulty: "easy",
+    q: "유압은 공기압과 비교하여 출력이 어떤가?",
+    choices: ["높다", "낮다", "같다", "불안정"],
+    answer: "높다",
+    explain: "유압은 고력을 발생한다."
+  },
+  {
+    id: 98,
+    difficulty: "easy",
+    q: "유압의 소음은 공기압과 비교하여?",
+    choices: ["더 큼", "거의 없음", "조금 큼", "매우 큼"],
+    answer: "조금 큼",
+    explain: "공기압보다 소음이 적지만 다소 큰 편이다."
+  },
+  {
+    id: 99,
+    difficulty: "easy",
+    q: "배관의 장점은?",
+    choices: ["힘 전달 방향 자유로움", "강도 부족", "고장 많음", "오염 심함"],
+    answer: "힘 전달 방향 자유로움",
+    explain: "배관의 자유도가 높다."
+  },
+  {
+    id: 100,
+    difficulty: "easy",
+    q: "공기압 시스템이 환경에 미치는 영향은?",
+    choices: ["오염 심함", "오염 거의 없음", "유해 가스 발생", "온도 급상승"],
+    answer: "오염 거의 없음",
+    explain: "공기는 기본적으로 청결하며 환경에 영향이 적다."
+  },
+   {
+    id: 1,
+    difficulty: "normal",
+    q: "공기압 실린더의 추력 계산 시 고려해야 할 요소는?",
+    choices: ["피스톤 면적과 압력", "배관 길이", "조명 밝기", "케이블 길이"],
+    answer: "피스톤 면적과 압력",
+    explain: "추력은 압력 × 면적으로 계산된다."
+  },
+  {
+    id: 2,
+    difficulty: "normal",
+    q: "유압과 공기압의 주요 차이점은 무엇인가?",
+    choices: ["압축성 여부", "전압 크기", "습도", "온도"],
+    answer: "압축성 여부",
+    explain: "유압은 비압축성, 공기압은 압축성이다."
+  },
+  {
+    id: 3,
+    difficulty: "normal",
+    q: "공기압 회로에서 릴리프 밸브의 주요 기능은?",
+    choices: ["압력 상승 방지", "속도 증가", "가열 방지", "유량 증가"],
+    answer: "압력 상승 방지",
+    explain: "설정 압력 이상에서 공기를 배출해 과압을 예방한다."
+  },
+  {
+    id: 4,
+    difficulty: "normal",
+    q: "타이머의 현재값은 어떤 명령으로 0으로 초기화할 수 있는가?",
+    choices: ["RST T명령", "SET T명령", "MOV 명령", "INC 명령"],
+    answer: "RST T명령",
+    explain: "리셋 명령으로 카운터와 타이머 값을 초기화한다."
+  },
+  {
+    id: 5,
+    difficulty: "normal",
+    q: "실린더 속도를 조절하기 위해 가장 많이 사용되는 방식은?",
+    choices: ["교축 제어", "전압 제어", "온도 제어", "전류 제어"],
+    answer: "교축 제어",
+    explain: "유량 조절을 통해 속도를 제어한다."
+  },
+
+  {
+    id: 6,
+    difficulty: "normal",
+    q: "ISO1219에서 X와 Y포트는 무엇을 의미하는가?",
+    choices: ["전신호 포트", "배기 포트", "작업 포트", "에너지 포트"],
+    answer: "전신호 포트",
+    explain: "X, Y는 파일럿 제어용 전신호 포트이다."
+  },
+  {
+    id: 7,
+    difficulty: "normal",
+    q: "로터리 액추에이터의 장점은?",
+    choices: ["회전 가능", "고출력", "대형 가능", "정밀도 낮음"],
+    answer: "회전 가능",
+    explain: "선형이 아닌 회전 동작을 구현할 수 있다."
+  },
+  {
+    id: 8,
+    difficulty: "normal",
+    q: "공압 필터에서 가장 중요한 기능은?",
+    choices: ["수분 제거", "전압 증가", "열 발생", "유량 차단"],
+    answer: "수분 제거",
+    explain: "필터는 수분과 이물질을 제거한다."
+  },
+  {
+    id: 9,
+    difficulty: "normal",
+    q: "PLC에서 MOV 명령은 어떤 역할을 하는가?",
+    choices: ["데이터 복사", "데이터 삭제", "덧셈 수행", "타이머 시작"],
+    answer: "데이터 복사",
+    explain: "목적지에 소스 값을 그대로 이동시킨다."
+  },
+  {
+    id: 10,
+    difficulty: "normal",
+    q: "PLC의 RUN 상태에서 가능한 동작은?",
+    choices: ["프로그램 실행", "CPU 교체", "전압 설정", "모터 교정"],
+    answer: "프로그램 실행",
+    explain: "RUN은 PLC가 프로그램을 수행하는 상태이다."
+  },
+
+  {
+    id: 11,
+    difficulty: "normal",
+    q: "공압 시스템에서 누설이 가져오는 영향은?",
+    choices: ["효율 저하", "압력 증가", "속도 증가", "소음 감소"],
+    answer: "효율 저하",
+    explain: "누설은 동력과 압력을 손실시킨다."
+  },
+  {
+    id: 12,
+    difficulty: "normal",
+    q: "리미트 스위치의 기본 역할은?",
+    choices: ["위치 검출", "전압 상승", "속도 변화", "가열 제어"],
+    answer: "위치 검출",
+    explain: "기계적 접점으로 위치를 판단한다."
+  },
+  {
+    id: 13,
+    difficulty: "normal",
+    q: "PLC에서 SM409는 어떤 접점인가?",
+    choices: ["1초 펄스", "1분 펄스", "시스템 오류", "전원 감지"],
+    answer: "1초 펄스",
+    explain: "1초 주기로 ON/OFF되는 시스템 비트이다."
+  },
+  {
+    id: 14,
+    difficulty: "normal",
+    q: "카운터의 기본 기능은?",
+    choices: ["입력 신호를 집계", "출력 전압 증가", "압력 변환", "배기관 제어"],
+    answer: "입력 신호를 집계",
+    explain: "카운터는 신호를 세어 특정 조건에서 ON한다."
+  },
+  {
+    id: 15,
+    difficulty: "normal",
+    q: "공기압 회로에서 스피드 컨트롤 밸브는 어디에 설치하는가?",
+    choices: ["실린더 포트 근처", "압축기 안쪽", "필터 내부", "배관 끝부분"],
+    answer: "실린더 포트 근처",
+    explain: "정확한 속도 제어를 위해 실린더 포트에 설치한다."
+  },
+
+  {
+    id: 16,
+    difficulty: "normal",
+    q: "유압 실린더에서 오일의 온도 상승이 초래하는 문제는?",
+    choices: ["점도 감소", "압력 증가", "속도 증가", "소음 감소"],
+    answer: "점도 감소",
+    explain: "점도가 감소하면 제어 성능이 떨어진다."
+  },
+  {
+    id: 17,
+    difficulty: "normal",
+    q: "SOL 밸브의 구조에서 코일의 역할은?",
+    choices: ["자속 생성", "압력 제거", "오일 공급", "전기 차단"],
+    answer: "자속 생성",
+    explain: "전류가 흐르면 자속이 발생해 플런저를 움직인다."
+  },
+  {
+    id: 18,
+    difficulty: "normal",
+    q: "공기압에서 배기 소음을 줄이기 위해 사용하는 장치는?",
+    choices: ["머플러", "릴리프 밸브", "필터", "가버너"],
+    answer: "머플러",
+    explain: "배기 음을 감소시키는 장치이다."
+  },
+  {
+    id: 19,
+    difficulty: "normal",
+    q: "PLC에서 연산 명령의 기본 순서는?",
+    choices: ["S → D", "D → S", "S + S", "D + D"],
+    answer: "S → D",
+    explain: "연산은 소스 값을 취해 목적지에 기록한다."
+  },
+  {
+    id: 20,
+    difficulty: "normal",
+    q: "타이머 T0의 시간 단위가 100ms라면 현재값 12는 몇 초인가?",
+    choices: ["0.12초", "1.2초", "12초", "0.012초"],
+    answer: "1.2초",
+    explain: "100ms × 12 = 1200ms = 1.2초이다."
+  },
+
+  {
+    id: 21,
+    difficulty: "normal",
+    q: "유압 펌프에서 캐비테이션은 어떤 문제를 유발하는가?",
+    choices: ["성능 저하", "온도 상승", "회전 증가", "압력 유지"],
+    answer: "성능 저하",
+    explain: "기포 파괴로 펌프 손상 및 성능 저하가 발생한다."
+  },
+  {
+    id: 22,
+    difficulty: "normal",
+    q: "공기압 시스템에서 오일 미스트의 역할은?",
+    choices: ["윤활 제공", "압력 상승", "속도 증가", "냉각"],
+    answer: "윤활 제공",
+    explain: "기계 부품의 움직임을 부드럽게 한다."
+  },
+  {
+    id: 23,
+    difficulty: "normal",
+    q: "A접점의 동작 특성은?",
+    choices: ["ON에서 OFF", "OFF에서 ON", "항상 ON", "항상 OFF"],
+    answer: "OFF에서 ON",
+    explain: "정상 개방형 접점은 신호가 들어오면 ON된다."
+  },
+  {
+    id: 24,
+    difficulty: "normal",
+    q: "B접점의 동작 특성은?",
+    choices: ["ON에서 OFF", "OFF에서 ON", "항상 ON", "변화 없음"],
+    answer: "ON에서 OFF",
+    explain: "정상 폐쇄형 접점은 신호가 들어오면 OFF된다."
+  },
+  {
+    id: 25,
+    difficulty: "normal",
+    q: "공기압 실린더의 복귀력을 증가시키는 방법은?",
+    choices: ["스프링 강도 증가", "전력 상승", "오일 증가", "배기 차단"],
+    answer: "스프링 강도 증가",
+    explain: "단동 실린더에서는 스프링이 복귀력을 결정한다."
+  },
+  {
+    id: 26,
+    difficulty: "normal",
+    q: "공기압 실린더에서 스트로크가 길어질 때 발생하기 쉬운 문제는?",
+    choices: ["로드 휨", "전압 감소", "오일 누출", "속도 증가"],
+    answer: "로드 휨",
+    explain: "스트로크가 길면 구조적으로 휨 현상이 생기기 쉽다."
+  },
+  {
+    id: 27,
+    difficulty: "normal",
+    q: "PLC에서 타이머의 누적 동작을 방지하려면 어떤 명령어를 사용해야 하는가?",
+    choices: ["RST 명령", "SET 명령", "INC 명령", "MOV 명령"],
+    answer: "RST 명령",
+    explain: "RST는 타이머 및 카운터의 현재값을 초기화한다."
+  },
+  {
+    id: 28,
+    difficulty: "normal",
+    q: "2포트 밸브의 기본 기능은 무엇인가?",
+    choices: ["개폐 기능", "유량 증폭", "방향 전환", "압력 조절"],
+    answer: "개폐 기능",
+    explain: "2포트 밸브는 흐름을 단순히 열고 닫는 역할이다."
+  },
+  {
+    id: 29,
+    difficulty: "normal",
+    q: "공기압 필터에서 드레인이 제거되지 않으면 어떤 문제가 발생하는가?",
+    choices: ["압력 저하", "전류 증가", "코일 소손", "회전 증가"],
+    answer: "압력 저하",
+    explain: "수분이 쌓이면 공기 흐름이 막혀 압력 손실이 발생한다."
+  },
+  {
+    id: 30,
+    difficulty: "normal",
+    q: "배기 포트에 머플러를 설치하는 이유는?",
+    choices: ["소음 감소", "속도 증가", "압력 증가", "온도 상승 방지"],
+    answer: "소음 감소",
+    explain: "배기 시 발생하는 큰 소음을 줄이기 위함이다."
+  },
+
+  {
+    id: 31,
+    difficulty: "normal",
+    q: "공기압 회로에서 일방향 조절 밸브는 어떤 특성을 가지는가?",
+    choices: ["한 방향만 유량 조절 가능", "양방향 모두 조절", "압력 증가", "속도 증가"],
+    answer: "한 방향만 유량 조절 가능",
+    explain: "역방향은 체크되고 정방향만 유량을 조절한다."
+  },
+  {
+    id: 32,
+    difficulty: "normal",
+    q: "PLC의 FBD 언어는 무엇을 기반으로 구성되는가?",
+    choices: ["블록", "문자열", "도형", "영상"],
+    answer: "블록",
+    explain: "기능 블록을 연결하여 프로그램을 작성한다."
+  },
+  {
+    id: 33,
+    difficulty: "normal",
+    q: "A접점이 정상 개방형이라면 신호가 OFF일 때의 상태는?",
+    choices: ["개방", "폐쇄", "펄스", "불규칙"],
+    answer: "개방",
+    explain: "A접점은 기본적으로 열린 형태이다."
+  },
+  {
+    id: 34,
+    difficulty: "normal",
+    q: "PLC에서 하강펄스 접점은 언제 ON 되는가?",
+    choices: ["ON→OFF 순간", "OFF→ON 순간", "항상 ON", "지연 ON"],
+    answer: "ON→OFF 순간",
+    explain: "신호가 꺼지는 순간 펄스를 출력한다."
+  },
+  {
+    id: 35,
+    difficulty: "normal",
+    q: "공기압 실린더의 속도는 주로 무엇으로 결정되는가?",
+    choices: ["유량", "전압", "전류", "온도"],
+    answer: "유량",
+    explain: "유량 조절을 통해 속도를 세밀하게 제어한다."
+  },
+
+  {
+    id: 36,
+    difficulty: "normal",
+    q: "ISO1219에서 R 포트는 무엇을 의미하는가?",
+    choices: ["배기 포트", "작업 포트", "전신호 포트", "공급 포트"],
+    answer: "배기 포트",
+    explain: "배기 포트는 R, S, T로 표기한다."
+  },
+  {
+    id: 37,
+    difficulty: "normal",
+    q: "SOL 밸브가 고착되었을 때 나타날 수 있는 현상은?",
+    choices: ["전환 불가", "압력 증가", "속도 증가", "전류 소모 감소"],
+    answer: "전환 불가",
+    explain: "코일이나 플런저가 고착되면 밸브가 전환되지 않는다."
+  },
+  {
+    id: 38,
+    difficulty: "normal",
+    q: "PLC의 카운터는 어떤 동작을 기준으로 카운트하는가?",
+    choices: ["입력 신호 변화", "전압 변화", "온도 변화", "압력 변화"],
+    answer: "입력 신호 변화",
+    explain: "입력 신호의 ON/OFF를 감지하여 횟수를 센다."
+  },
+  {
+    id: 39,
+    difficulty: "normal",
+    q: "스프링 리턴 방식의 단동 실린더의 특징은?",
+    choices: ["복귀가 자동", "양방향 작업", "속도 제어 정밀", "작업력 증가"],
+    answer: "복귀가 자동",
+    explain: "스프링으로 복귀되기 때문에 한 방향으로만 작동한다."
+  },
+  {
+    id: 40,
+    difficulty: "normal",
+    q: "공기압 시스템에서 압력 스위치는 무엇을 감지하는가?",
+    choices: ["설정 압력", "온도", "습도", "회전수"],
+    answer: "설정 압력",
+    explain: "압력이 설정값에 도달하면 신호를 출력한다."
+  },
+
+  {
+    id: 41,
+    difficulty: "normal",
+    q: "PLC의 프로그램 실시간 수정이 가능하다는 이점은 무엇인가?",
+    choices: ["작업 중에도 수정 가능", "전원 필요 없음", "코일 없이 동작", "케이블 제거 가능"],
+    answer: "작업 중에도 수정 가능",
+    explain: "PLC는 온라인 수정 기능을 제공한다."
+  },
+  {
+    id: 42,
+    difficulty: "normal",
+    q: "단동 실린더의 단점은?",
+    choices: ["편심 발생 가능", "비용 증가", "이동거리 감소", "전원 소모 증가"],
+    answer: "이동거리 감소",
+    explain: "스프링 공간 때문에 스트로크가 줄어든다."
+  },
+  {
+    id: 43,
+    difficulty: "normal",
+    q: "3포트 밸브의 기본 기능은?",
+    choices: ["공급·차단·배기", "속도 조절", "윤활", "회전 제어"],
+    answer: "공급·차단·배기",
+    explain: "3포트 밸브는 이 세 가지 기능을 가지고 있다."
+  },
+  {
+    id: 44,
+    difficulty: "normal",
+    q: "PLC에서 D 레지스터는 주로 어떤 용도로 사용하는가?",
+    choices: ["데이터 저장", "전원 입력", "압력 제어", "동작 차단"],
+    answer: "데이터 저장",
+    explain: "D 레지스터는 수치 및 결과값 저장에 사용된다."
+  },
+  {
+    id: 45,
+    difficulty: "normal",
+    q: "교축 밸브를 너무 조이면 어떤 문제가 발생할 수 있는가?",
+    choices: ["속도 저하", "속도 상승", "온도 급상승", "전압 유지"],
+    answer: "속도 저하",
+    explain: "유량이 줄어들어 실린더 속도가 느려진다."
+  },
+
+  {
+    id: 46,
+    difficulty: "normal",
+    q: "ISO5599에서 배기 포트는 어떤 번호인가?",
+    choices: ["3, 5, 7", "1", "2,4,6", "10,12,14"],
+    answer: "3, 5, 7",
+    explain: "ISO5599 규격에서 3,5,7은 배기 포트이다."
+  },
+  {
+    id: 47,
+    difficulty: "normal",
+    q: "파일럿 방식 SOL 밸브의 장점은?",
+    choices: ["대용량 가능", "정밀 제어", "저전압 필요", "빠른 가열"],
+    answer: "대용량 가능",
+    explain: "파일럿 압력으로 큰 주 밸브를 조작할 수 있다."
+  },
+  {
+    id: 48,
+    difficulty: "normal",
+    q: "속도 제어 밸브는 일반적으로 어디 설치하는 것이 올바른가?",
+    choices: ["실린더 근처", "압축기 안쪽", "전원 장치", "PLC 내부"],
+    answer: "실린더 근처",
+    explain: "정확한 제어를 위해 실린더 포트에 설치한다."
+  },
+  {
+    id: 49,
+    difficulty: "normal",
+    q: "PLC의 덧셈 명령은 어떤 계산을 수행하는가?",
+    choices: ["D = S + D", "S = D + D", "D = D - S", "S = S - D"],
+    answer: "D = S + D",
+    explain: "PLC의 덧셈 연산 규칙은 S를 더해 D에 저장하는 방식이다."
+  },
+  {
+    id: 50,
+    difficulty: "normal",
+    q: "스프링 리턴 방식은 어떤 경우에 가장 많이 사용되는가?",
+    choices: ["기본 위치 복귀 필요 시", "회전 제어", "고속 제어", "정전류 회로"],
+    answer: "기본 위치 복귀 필요 시",
+    explain: "전원이 없어도 자동으로 복귀가 가능한 장점이 있다."
+  },
+   {
+    id: 51,
+    difficulty: "normal",
+    q: "공기압 시스템에서 냉각기를 사용하는 주요 이유는?",
+    choices: ["압축 공기 온도 감소", "전압 증가", "밸브 수명 단축", "소음 증가"],
+    answer: "압축 공기 온도 감소",
+    explain: "냉각기를 통해 공기 온도를 낮추어 장비 수명을 보호한다."
+  },
+  {
+    id: 52,
+    difficulty: "normal",
+    q: "PLC에서 MOV 명령의 역할은?",
+    choices: ["데이터 복사", "데이터 삭제", "데이터 증가", "데이터 정렬"],
+    answer: "데이터 복사",
+    explain: "MOV는 S의 값을 D로 복사하는 명령이다."
+  },
+  {
+    id: 53,
+    difficulty: "normal",
+    q: "압축 공기 내 수분 제거를 위해 사용하는 장치는?",
+    choices: ["드레인", "릴레이", "인버터", "히터"],
+    answer: "드레인",
+    explain: "저장탱크나 필터 하부에 있는 드레인을 통해 수분을 제거한다."
+  },
+  {
+    id: 54,
+    difficulty: "normal",
+    q: "PLC 프로그램 실행 순서 중 ‘변환(기계어 생성)’ 단계의 역할은?",
+    choices: ["기계어 코드로 변환", "회로 배선", "입력 장치 선택", "배기 조절"],
+    answer: "기계어 코드로 변환",
+    explain: "사용자가 작성한 프로그램을 CPU가 이해하는 기계어로 바꾸는 단계이다."
+  },
+  {
+    id: 55,
+    difficulty: "normal",
+    q: "공기압 시스템에서 윤활기(루브리케이터)의 기능은?",
+    choices: ["윤활유 공급", "전원 공급", "압력 상승", "속도 감소"],
+    answer: "윤활유 공급",
+    explain: "밸브, 실린더 내부에 윤활유를 공급하여 마찰을 줄인다."
+  },
+  {
+    id: 56,
+    difficulty: "normal",
+    q: "PLC에서 SET 코일이 작동 상태를 유지하는 이유는?",
+    choices: ["자기 유지 기능", "타이머 설정", "압력 유지", "전압 변환"],
+    answer: "자기 유지 기능",
+    explain: "SET 코일은 조건이 사라져도 상태를 유지한다."
+  },
+  {
+    id: 57,
+    difficulty: "normal",
+    q: "유압과 비교하여 공기압의 가장 큰 단점은?",
+    choices: ["큰 힘을 만들기 어려움", "시스템 가격 상승", "오염 발생", "고압 불가"],
+    answer: "큰 힘을 만들기 어려움",
+    explain: "공기는 압축성이 있어 큰 힘 전달이 어렵다."
+  },
+  {
+    id: 58,
+    difficulty: "normal",
+    q: "A 접점과 B 접점의 차이는?",
+    choices: ["A는 NO, B는 NC", "A는 NC, B는 NO", "둘 다 NO", "둘 다 NC"],
+    answer: "A는 NO, B는 NC",
+    explain: "A는 평상시 열림, B는 평상시 닫힘이다."
+  },
+  {
+    id: 59,
+    difficulty: "normal",
+    q: "파일럿 밸브의 장점 중 옳은 것은?",
+    choices: ["작은 힘으로 큰 밸브 조작", "속도 증가", "전원 불필요", "소음 감소"],
+    answer: "작은 힘으로 큰 밸브 조작",
+    explain: "파일럿 압력을 통해 적은 전력으로 큰 밸브를 움직일 수 있다."
+  },
+  {
+    id: 60,
+    difficulty: "normal",
+    q: "PLC에서 카운터가 특정 값에 도달하면 어떤 일이 발생하는가?",
+    choices: ["출력 신호 발생", "전원 차단", "압력 상승", "연속 카운트 초기화"],
+    answer: "출력 신호 발생",
+    explain: "설정값에 도달하면 카운터 출력이 ON 된다."
+  },
+
+  {
+    id: 61,
+    difficulty: "normal",
+    q: "공기압 발생부 구성 중 압축기의 역할은?",
+    choices: ["압축 공기 생성", "윤활유 공급", "방향 전환", "배기 처리"],
+    answer: "압축 공기 생성",
+    explain: "압축기는 공기압 시스템의 핵심 동력원이다."
+  },
+  {
+    id: 62,
+    difficulty: "normal",
+    q: "ISO1219에서 X·Y 포트는 어떤 기능을 하는가?",
+    choices: ["제어 포트", "작업 포트", "배기 포트", "공급 포트"],
+    answer: "제어 포트",
+    explain: "신호를 통해 밸브를 전환시키는 제어 포트이다."
+  },
+  {
+    id: 63,
+    difficulty: "normal",
+    q: "공기압 실린더에서 압력이 부족하면 가장 먼저 발생할 수 있는 문제는?",
+    choices: ["추력 부족", "온도 급상승", "전압 변화", "응답속도 향상"],
+    answer: "추력 부족",
+    explain: "압력이 낮으면 실린더의 힘이 크게 감소한다."
+  },
+  {
+    id: 64,
+    difficulty: "normal",
+    q: "PLC에서 데이터 인크리먼트 명령의 기능은?",
+    choices: ["데이터를 1 증가", "데이터 초기화", "데이터 감소", "데이터 비교"],
+    answer: "데이터를 1 증가",
+    explain: "INC 명령은 D의 값을 1 증가시킨다."
+  },
+  {
+    id: 65,
+    difficulty: "normal",
+    q: "공기압 제어에서 응답성이 유압보다 낮은 이유는?",
+    choices: ["공기의 압축성 때문", "온도 때문", "전압 변동 때문", "윤활유 부족"],
+    answer: "공기의 압축성 때문",
+    explain: "압축성 때문에 힘 전달 속도와 반응 속도가 느려진다."
+  },
+  {
+    id: 66,
+    difficulty: "normal",
+    q: "3/2밸브는 어떤 기능을 수행하는가?",
+    choices: ["공급·출력·배기", "방향 전환", "회전 조절", "속도 증가"],
+    answer: "공급·출력·배기",
+    explain: "3개의 포트와 2개의 위치로 구성된 밸브다."
+  },
+  {
+    id: 67,
+    difficulty: "normal",
+    q: "PLC 프로그램에서 ‘스캔’은 무엇을 의미하는가?",
+    choices: ["입력→연산→출력 순환", "데이터 삭제", "배선 점검", "전압 측정"],
+    answer: "입력→연산→출력 순환",
+    explain: "PLC는 이 순서대로 프로그램을 반복 실행한다."
+  },
+  {
+    id: 68,
+    difficulty: "normal",
+    q: "서비스 유닛 세트 구성 요소가 아닌 것은?",
+    choices: ["변압기", "필터", "레귤레이터", "루브리케이터"],
+    answer: "변압기",
+    explain: "서비스 유닛은 필터·레귤레이터·루브리케이터로 구성된다."
+  },
+  {
+    id: 69,
+    difficulty: "normal",
+    q: "공기압 실린더에서 속도 조절 밸브는 일반적으로 어느 포트에 설치하는가?",
+    choices: ["배기 포트", "공급 포트", "탱크 포트", "제어 포트"],
+    answer: "배기 포트",
+    explain: "배기식 제어가 실린더 속도 제어에 더 안정적이다."
+  },
+  {
+    id: 70,
+    difficulty: "normal",
+    q: "PLC에서 SM409 신호의 특성은?",
+    choices: ["0.01초 ON/OFF 반복", "1초 주기", "전원 OFF 유지", "스캔 시간 고정"],
+    answer: "0.01초 ON/OFF 반복",
+    explain: "SM409는 0.01초 단위의 클록 신호이다."
+  },
+
+  {
+    id: 71,
+    difficulty: "normal",
+    q: "PLC에서 누산형 타이머의 특징은?",
+    choices: ["OFF 시에도 값 유지", "전원이 꺼지면 초기화", "고속 신호 전용", "펄스 신호만 입력"],
+    answer: "OFF 시에도 값 유지",
+    explain: "누산형은 조건이 끊겨도 누적값이 남는다."
+  },
+  {
+    id: 72,
+    difficulty: "normal",
+    q: "파일럿 방식 밸브의 단점은?",
+    choices: ["파일럿 압력 필요", "고장률 증가", "소음 증가", "전류 증가"],
+    answer: "파일럿 압력 필요",
+    explain: "파일럿 압력이 없으면 작동할 수 없다."
+  },
+  {
+    id: 73,
+    difficulty: "normal",
+    q: "셔틀 밸브의 또 다른 명칭은?",
+    choices: ["OR 밸브", "AND 밸브", "NOT 밸브", "XOR 밸브"],
+    answer: "OR 밸브",
+    explain: "둘 중 하나의 신호가 들어오면 출력이 된다."
+  },
+  {
+    id: 74,
+    difficulty: "normal",
+    q: "ISO5599에서 공급 포트 번호는?",
+    choices: ["1", "3", "5", "7"],
+    answer: "1",
+    explain: "1번 포트는 공급 포트로 규정되어 있다."
+  },
+  {
+    id: 75,
+    difficulty: "normal",
+    q: "PLC에서 데이터 시프트 명령의 기능은?",
+    choices: ["왼쪽으로 데이터 이동", "데이터 삭제", "데이터 복구", "데이터 자동 초기화"],
+    answer: "왼쪽으로 데이터 이동",
+    explain: "SHIFT 명령은 데이터를 N자리만큼 왼쪽으로 이동시킨다."
+  }, {
+    id: 76,
+    difficulty: "normal",
+    q: "간접 작동형 솔레노이드 밸브의 주요 장점은?",
+    choices: ["대용량 제어 가능", "전력 소모 많음", "소형 장치에 적합", "반응 속도 낮음"],
+    answer: "대용량 제어 가능",
+    explain: "파일럿 압력을 이용해 큰 밸브를 움직일 수 있다."
+  },
+  {
+    id: 77,
+    difficulty: "normal",
+    q: "공기압 실린더에서 스프링이 내장된 것은?",
+    choices: ["단동 실린더", "복동 실린더", "로터리 실린더", "테이블 실린더"],
+    answer: "단동 실린더",
+    explain: "단동 실린더는 한쪽 방향만 공기로 움직이고 스프링으로 복귀한다."
+  },
+  {
+    id: 78,
+    difficulty: "normal",
+    q: "유압에 비해 공기압이 청결한 이유는?",
+    choices: ["오일 사용이 없음", "압력이 낮아서", "속도가 느려서", "부품이 단순해서"],
+    answer: "오일 사용이 없음",
+    explain: "공기압은 오일 누유가 없어 환경 오염이 적다."
+  },
+  {
+    id: 79,
+    difficulty: "normal",
+    q: "PLC에서 RS 플립플롭의 Reset을 실행하는 명령은?",
+    choices: ["R", "OUT", "INC", "MOV"],
+    answer: "R",
+    explain: "RESET 명령은 세트 상태를 해제한다."
+  },
+  {
+    id: 80,
+    difficulty: "normal",
+    q: "A접점이 동작하는 조건은?",
+    choices: ["입력 ON일 때", "입력 OFF일 때", "전원 차단 시", "타이머 OFF일 때"],
+    answer: "입력 ON일 때",
+    explain: "A접점은 NO 접점으로 입력 신호가 들어올 때 닫힌다."
+  },
+
+  {
+    id: 81,
+    difficulty: "normal",
+    q: "배기 소음이 큰 공기압 시스템의 해결책은?",
+    choices: ["소음기 설치", "밸브 제거", "압력 증가", "공기압 차단"],
+    answer: "소음기 설치",
+    explain: "배기 소음을 줄이기 위해 머플러나 소음기를 사용한다."
+  },
+  {
+    id: 82,
+    difficulty: "normal",
+    q: "PLC에서 타이머가 사용하는 기본 단위는 무엇인가?",
+    choices: ["ms(밀리초)", "cm", "kPa", "rpm"],
+    answer: "ms(밀리초)",
+    explain: "PLC의 타이머 기본 단위는 보통 밀리초이다."
+  },
+  {
+    id: 83,
+    difficulty: "normal",
+    q: "방향 제어 밸브의 제어 위치 수는 무엇으로 표시되는가?",
+    choices: ["사각형 개수", "삼각형 개수", "화살표 수", "원 개수"],
+    answer: "사각형 개수",
+    explain: "각 사각형은 하나의 제어 위치를 의미한다."
+  },
+  {
+    id: 84,
+    difficulty: "normal",
+    q: "동력 발생이 ‘다소 곤란’한 시스템은?",
+    choices: ["유압", "공기압", "전기식", "모터식"],
+    answer: "유압",
+    explain: "유압은 높은 압력이 필요해 동력 발생이 쉽지 않다."
+  },
+  {
+    id: 85,
+    difficulty: "normal",
+    q: "PLC에서 SM410 신호는 어떤 특징을 가지는가?",
+    choices: ["0.1초 주기 ON/OFF", "1초 주기", "전원 유지 신호", "비트 쉬프트"],
+    answer: "0.1초 주기 ON/OFF",
+    explain: "SM410은 0.1초 간격으로 상태가 변한다."
+  },
+
+  {
+    id: 86,
+    difficulty: "normal",
+    q: "공기압 필터의 기본 역할은?",
+    choices: ["불순물 제거", "전원 공급", "속도 증가", "압력 증폭"],
+    answer: "불순물 제거",
+    explain: "필터는 수분 및 먼지를 제거하여 장치 고장을 방지한다."
+  },
+  {
+    id: 87,
+    difficulty: "normal",
+    q: "PLC 프로그램에서 출력 코일의 기능은?",
+    choices: ["작동 상태 출력", "카운트 증가", "타이머 변환", "데이터 이동"],
+    answer: "작동 상태 출력",
+    explain: "OUT 코일은 결과를 출력 장치로 전달한다."
+  },
+  {
+    id: 88,
+    difficulty: "normal",
+    q: "교축 밸브를 사용하여 조절하는 것은?",
+    choices: ["유량", "전압", "전류", "각속도"],
+    answer: "유량",
+    explain: "작동 유체의 양을 조절하는 밸브이다."
+  },
+  {
+    id: 89,
+    difficulty: "normal",
+    q: "복동 실린더가 단동 실린더보다 유리한 점은?",
+    choices: ["양방향 작업 가능", "가격이 더 저렴함", "구조가 단순함", "스프링 불필요함"],
+    answer: "양방향 작업 가능",
+    explain: "양쪽 모두 공기압을 사용하여 전후 왕복운동이 가능하다."
+  },
+  {
+    id: 90,
+    difficulty: "normal",
+    q: "PLC에서 카운터가 초기화되는 조건은?",
+    choices: ["리셋 신호 입력", "SET 신호 입력", "타이머 완료", "데이터 이동"],
+    answer: "리셋 신호 입력",
+    explain: "RESET 명령을 통해 카운터 값이 0으로 초기화된다."
+  },
+
+  {
+    id: 91,
+    difficulty: "normal",
+    q: "3/2 밸브의 세 번째 포트의 기능은?",
+    choices: ["배기 포트", "제어 포트", "흡입 포트", "냉각 포트"],
+    answer: "배기 포트",
+    explain: "세 번째 포트는 배기용이다."
+  },
+  {
+    id: 92,
+    difficulty: "normal",
+    q: "공기압 시스템에서 압력 조정 장치는?",
+    choices: ["레귤레이터", "릴레이", "트랜스포머", "타이머"],
+    answer: "레귤레이터",
+    explain: "압력을 일정하게 조절하는 장치다."
+  },
+  {
+    id: 93,
+    difficulty: "normal",
+    q: "PLC에서 INC 명령의 동작은?",
+    choices: ["+1 증가", "−1 감소", "0으로 초기화", "데이터 저장"],
+    answer: "+1 증가",
+    explain: "INC는 해당 주소 값을 1 증가시킨다."
+  },
+  {
+    id: 94,
+    difficulty: "normal",
+    q: "공기압 시스템에서 습기가 많을 경우 나타나는 문제는?",
+    choices: ["부식 및 작동 불량", "압력 증가", "열 발생 감소", "속도 향상"],
+    answer: "부식 및 작동 불량",
+    explain: "수분은 장치 부식을 일으키며 오작동의 원인이 된다."
+  },
+  {
+    id: 95,
+    difficulty: "normal",
+    q: "PLC의 장점에 해당하는 것은?",
+    choices: ["접점 마모 없음", "전원 소모 큼", "수리 어려움", "기계식 구조"],
+    answer: "접점 마모 없음",
+    explain: "전자식 제어라 기계적 마모가 없다."
+  },
+
+  {
+    id: 96,
+    difficulty: "normal",
+    q: "공기압을 이용해 동력 전달 시 제약이 적은 이유는?",
+    choices: ["배관으로 쉽게 전달됨", "높은 무게", "압력 부족", "전원 분리"],
+    answer: "배관으로 쉽게 전달됨",
+    explain: "바람은 배관을 통해 자유롭게 이동할 수 있다."
+  },
+  {
+    id: 97,
+    difficulty: "normal",
+    q: "PLC 프로그램에서 ‘하강 펄스 접점’이 동작하는 경우는?",
+    choices: ["신호가 OFF되는 순간", "신호가 ON되는 순간", "항상 ON일 때", "조건이 유지될 때"],
+    answer: "신호가 OFF되는 순간",
+    explain: "하강 에지에서 1스캔 동안 동작한다."
+  },
+  {
+    id: 98,
+    difficulty: "normal",
+    q: "FBD 언어는 어떤 방식의 프로그래밍인가?",
+    choices: ["블록 기반 그래픽", "문자 기반", "테이블 기반", "음성 기반"],
+    answer: "블록 기반 그래픽",
+    explain: "FBD는 블록을 연결하여 논리를 구성하는 방식이다."
+  },
+  {
+    id: 99,
+    difficulty: "normal",
+    q: "셔틀 밸브가 OR 동작을 하는 이유는?",
+    choices: ["둘 중 하나의 신호만 있어도 출력됨", "둘 다 있어야 출력됨", "신호를 반전함", "신호를 지연함"],
+    answer: "둘 중 하나의 신호만 있어도 출력됨",
+    explain: "셔틀 밸브는 OR 논리와 동일하게 동작한다."
+  },
+  {
+    id: 100,
+    difficulty: "normal",
+    q: "공기압의 가장 일반적인 사용 압력 범위는?",
+    choices: ["4~6 kgf/cm²", "1~2 kgf/cm²", "10~12 kgf/cm²", "20~30 kgf/cm²"],
+    answer: "4~6 kgf/cm²",
+    explain: "일반 공정에서는 대부분 4~6 kgf/cm² 범위를 사용한다."
+  },
+  {
+    id: 1,
+    difficulty: "hard",
+    q: "건조한 공기는 무색·무미·무취이지만 실제 공기에는 수분이 포함된다. 이 수분이 제거되지 않을 경우 시스템에서 발생하는 가장 심각한 문제는?",
+    choices: ["부식 및 작동 불량", "압력 증가", "밸브 전환 속도 향상", "에너지 효율 증가"],
+    answer: "부식 및 작동 불량",
+    explain: "드레인을 통해 수분이 배출되지만 남아있으면 내부 부식과 오작동을 일으킨다."
+  },
+  {
+    id: 2,
+    difficulty: "hard",
+    q: "공기압의 장점 중 '보관성'이 우수하다는 의미로 가장 적절한 설명은?",
+    choices: ["압축한 공기를 탱크에 장기간 저장할 수 있다", "작업 물체를 오래 잡고 있을 수 있다", "공기압 장비가 오래 사용된다", "부품 교체 주기가 길다"],
+    answer: "압축한 공기를 탱크에 장기간 저장할 수 있다",
+    explain: "공기는 누유 문제가 적어 압축하여 저장하기 쉽다."
+  },
+  {
+    id: 3,
+    difficulty: "hard",
+    q: "공기압 시스템의 단점 중 '압축성'에 의해 나타나는 대표적 현상은?",
+    choices: ["정밀 제어 어려움", "출력 증가", "동력 손실 감소", "온도 변화 최소화"],
+    answer: "정밀 제어 어려움",
+    explain: "공기의 압축성 때문에 속도 및 위치 제어가 정밀하지 못하다."
+  },
+  {
+    id: 4,
+    difficulty: "hard",
+    q: "유압과 공기압을 비교할 때 응답성이 '중(1톤 정도)'로 평가되는 시스템은?",
+    choices: ["공기압", "유압", "전기식", "기계식"],
+    answer: "공기압",
+    explain: "유압은 10톤급도 즉시 움직일 수 있지만 공기압은 그보다 낮다."
+  },
+  {
+    id: 5,
+    difficulty: "hard",
+    q: "ISO 5599에서 제어 포트 번호(10,12,14)는 어떤 기능을 하는 포트인가?",
+    choices: ["파일럿 신호 입력", "배기 전환", "압력 공급", "실린더 포트 연결"],
+    answer: "파일럿 신호 입력",
+    explain: "ISO 규격에서 10·12·14번 포트는 제어(파일럿)용으로 사용된다."
+  },
+
+  {
+    id: 6,
+    difficulty: "hard",
+    q: "방향 제어 밸브 표기에서 ‘사각형 밖에 표시된 선’의 의미는?",
+    choices: ["포트 간 연결", "압력 방향", "밸브 전환 속도", "밸브 내부 구조"],
+    answer: "포트 간 연결",
+    explain: "사각형 외부의 선은 입구와 출구 포트의 연결상태를 나타낸다."
+  },
+  {
+    id: 7,
+    difficulty: "hard",
+    q: "직접 작동형 솔레노이드 밸브가 고장률이 낮은 이유는?",
+    choices: ["구조가 단순하고 기계적 링크가 적기 때문", "파일럿 라인이 있기 때문", "대용량으로 동작하기 때문", "전류가 크게 흐르기 때문"],
+    answer: "구조가 단순하고 기계적 링크가 적기 때문",
+    explain: "직접 작동형은 구조가 단순하여 고장 위험이 줄어든다."
+  },
+  {
+    id: 8,
+    difficulty: "hard",
+    q: "셔틀 밸브가 OR 로직을 수행한다면, 다음 중 그 동작 특성으로 올바른 것은?",
+    choices: ["두 입력 중 큰 압력만 출력된다", "두 입력이 모두 필요하다", "두 입력 중 낮은 압력이 출력된다", "둘 중 아무 입력도 없어도 출력된다"],
+    answer: "두 입력 중 큰 압력만 출력된다",
+    explain: "셔틀 밸브는 높은 압력 쪽이 공을 밀어 출력으로 연결된다."
+  },
+  {
+    id: 9,
+    difficulty: "hard",
+    q: "교축 밸브 조절 시 실린더 속도가 증가했을 때 나타날 수 있는 부작용은?",
+    choices: ["충격 증가", "압력 안정성 증가", "온도 하락", "부하 감소"],
+    answer: "충격 증가",
+    explain: "유량 증가로 속도가 증가하면 종단에서 충격이 커질 수 있다."
+  },
+  {
+    id: 10,
+    difficulty: "hard",
+    q: "단동 실린더의 구조적 특성상 복귀가 스프링에 의해 이루어질 때 문제가 되는 상황은?",
+    choices: ["외부 하중이 너무 클 때", "압력이 지나치게 높을 때", "공급 공기가 지나치게 건조할 때", "속도조절 밸브가 없을 때"],
+    answer: "외부 하중이 너무 클 때",
+    explain: "스프링 복귀력을 넘어서는 하중이면 정상 동작이 되지 않는다."
+  },
+
+  {
+    id: 11,
+    difficulty: "hard",
+    q: "PLC 프로그램에서 명령어 처리 속도가 매우 빠르다는 장점은 무엇을 가능하게 하는가?",
+    choices: ["고속 센서 신호 처리", "기계식 릴레이 대체 불가", "전압 증가", "배선 감소가 불가능"],
+    answer: "고속 센서 신호 처리",
+    explain: "PLC는 전자식이므로 빠른 스캔 시간으로 고속 신호 처리에 유리하다."
+  },
+  {
+    id: 12,
+    difficulty: "hard",
+    q: "PLC의 단점 중, 각 제조사마다 ‘소프트웨어가 다르다’는 점은 어떤 문제를 초래하는가?",
+    choices: ["호환성 문제", "전류 부족", "속도 저하", "메모리 증가"],
+    answer: "호환성 문제",
+    explain: "제조사마다 개발 환경이 달라 다른 기종과의 호환성이 떨어진다."
+  },
+  {
+    id: 13,
+    difficulty: "hard",
+    q: "PLC 처리 절차에서 '변환(기계어 생성)' 단계가 필요한 이유는?",
+    choices: ["PLC가 직접 사람이 작성한 명령어를 해석할 수 없어서", "메모리 확보를 위해", "배선 줄이기 위해", "전원 분리를 위해"],
+    answer: "PLC가 직접 사람이 작성한 명령어를 해석할 수 없어서",
+    explain: "인간이 작성한 래더/FBD는 기계어로 변환되어야 실행 가능하다."
+  },
+  {
+    id: 14,
+    difficulty: "hard",
+    q: "FBD 방식이 복잡한 로직 구성에 특히 유리한 이유는?",
+    choices: ["기능 블록 단위로 시각적 흐름을 쉽게 파악 가능", "문자 입력 속도가 빨라서", "코드가 자동 최적화돼서", "장치 연결 없이 실행돼서"],
+    answer: "기능 블록 단위로 시각적 흐름을 쉽게 파악 가능",
+    explain: "FBD는 블록 간 연결로 논리가 한 눈에 보여 복잡한 시스템에 유리하다."
+  },
+  {
+    id: 15,
+    difficulty: "hard",
+    q: "세트 출력 코일과 리셋 출력 코일이 동시에 참(True) 조건이라면 정상적인 결과는?",
+    choices: ["제조사 또는 설정에 따라 다르지만 일반적으로 RESET이 우선한다", "SET이 무조건 우선", "둘 다 동작하지 않음", "둘 다 ON 유지"],
+    answer: "제조사 또는 설정에 따라 다르지만 일반적으로 RESET이 우선한다",
+    explain: "대부분의 PLC는 RESET 우선 로직을 사용하지만 예외가 존재할 수 있다."
+  },
+  {
+    id: 16,
+    difficulty: "hard",
+    q: "SM404와 SM405 신호는 각각 'RUN 후 1스캔만 ON/OFF' 기능을 가진다. 이를 이용한 대표적 활용은?",
+    choices: ["초기화 루틴 실행", "고속 인터럽트 처리", "데이터 이동 반복", "출력 신호 유지"],
+    answer: "초기화 루틴 실행",
+    explain: "시작 시점에 한 번만 동작해야 하는 초기화 로직에 사용된다."
+  },
+  {
+    id: 17,
+    difficulty: "hard",
+    q: "미쯔비시 PLC에서 0.01초 클록(SM409)이 OFF에서 시작되는 이유는?",
+    choices: ["전원 투입 직후 예측 가능한 시작 상태 제공", "속도 향상을 위해", "메모리 절약 목적", "CPU 온도 초기화"],
+    answer: "전원 투입 직후 예측 가능한 시작 상태 제공",
+    explain: "OFF에서 시작해야 초기 타이밍 기준이 명확하다."
+  },
+  {
+    id: 18,
+    difficulty: "hard",
+    q: "데이터 시프트 명령을 왼쪽으로 N비트 이동시키면 발생하는 문제는?",
+    choices: ["상위 데이터 손실", "하위 데이터 손실", "메모리 초기화", "오버플로 방지"],
+    answer: "상위 데이터 손실",
+    explain: "왼쪽 시프트는 상위 비트가 밀려나면서 사라진다."
+  },
+  {
+    id: 19,
+    difficulty: "hard",
+    q: "정지 레오나드 방식이 고속 엘리베이터에 적합한 가장 핵심적인 이유는?",
+    choices: ["매우 부드러운 속도 제어", "가격이 저렴함", "구조 단순", "유지보수 쉬움"],
+    answer: "매우 부드러운 속도 제어",
+    explain: "SCR 점호각 제어로 직류 전동기의 속도를 매우 미세하게 조절 가능하다."
+  },
+  {
+    id: 20,
+    difficulty: "hard",
+    q: "정지 레오나드 방식이 워드 레오나드 방식보다 손실이 적은 이유는?",
+    choices: ["회전기 감속기 제거", "스프링 복귀 사용", "압축 공기 사용", "냉각기 제거"],
+    answer: "회전기 감속기 제거",
+    explain: "워드 레오나드는 기계적 회전장치가 많아 손실이 크다."
+  },
+  {
+    id: 21,
+    difficulty: "hard",
+    q: "단동 실린더가 사용되는 작업(클램핑, 이젝팅, 프레싱)의 공통점은?",
+    choices: ["복귀 힘이 작업에 관여하지 않는다", "왕복 작업이 필요하다", "고속 제어가 필요하다", "양방향 힘이 필요하다"],
+    answer: "복귀 힘이 작업에 관여하지 않는다",
+    explain: "작동은 공기로, 복귀는 스프링으로 하며 작업에 직접적인 부하를 주지 않는다."
+  },
+  {
+    id: 22,
+    difficulty: "hard",
+    q: "레귤레이터의 압력 조절 시 압력 강하가 발생하는 원인은?",
+    choices: ["스프링과 다이어프램의 기계적 저항", "온도 변화", "배선 불량", "타이머 신호"],
+    answer: "스프링과 다이어프램의 기계적 저항",
+    explain: "압력 조절 중 내부 부품의 저항 때문에 일부 압력이 소모된다."
+  },
+  {
+    id: 23,
+    difficulty: "hard",
+    q: "공기압 시스템에서 냉각기가 필요한 이유는?",
+    choices: ["압축 과정에서 공기 온도가 상승하기 때문", "압력 부족 방지", "수분 증가를 위해", "윤활유 공급"],
+    answer: "압축 과정에서 공기 온도가 상승하기 때문",
+    explain: "공기를 압축하면 온도가 대폭 상승하여 냉각 과정이 필요하다."
+  },
+  {
+    id: 24,
+    difficulty: "hard",
+    q: "유압 대비 공기압이 큰 힘을 내기 어려운 근본적 이유는?",
+    choices: ["압축성으로 힘 전달 손실이 크기 때문", "부품이 너무 무거워서", "온도 변화가 커서", "포트 수가 적어서"],
+    answer: "압축성으로 힘 전달 손실이 크기 때문",
+    explain: "압축되는 유체는 전달 효율이 낮아 큰 힘을 전달하기 어렵다."
+  },
+  {
+    id: 25,
+    difficulty: "hard",
+    q: "R16CPU가 R08CPU 대비 두 배의 프로그램 스텝 용량을 가지는 이유는?",
+    choices: ["더 큰 자동화 공정을 처리하기 위해", "전압을 높이기 위해", "시작 속도를 늘리기 위해", "ON/OFF 신호 강화를 위해"],
+    answer: "더 큰 자동화 공정을 처리하기 위해",
+    explain: "프로그램 스텝 용량은 제어 논리의 크기와 직접 연결된다."
+  },
+  {
+    id: 26,
+    difficulty: "hard",
+    q: "공기압 발생부에서 냉각기의 설치 목적은 무엇인가?",
+    choices: ["압축 과정에서 발생하는 열을 제거하기 위해", "윤활유 공급을 위해", "압력 증가를 위해", "필터 기능을 강화하기 위해"],
+    answer: "압축 과정에서 발생하는 열을 제거하기 위해",
+    explain: "압축하면 온도가 상승하므로 냉각으로 안정화시켜야 한다."
+  },
+  {
+    id: 27,
+    difficulty: "hard",
+    q: "공기압 시스템에서 서비스 유닛이 압력 안정성에 기여하는 핵심 요소는?",
+    choices: ["레귤레이터", "셔틀 밸브", "파일럿 밸브", "스프링 리턴"],
+    answer: "레귤레이터",
+    explain: "필터·레귤레이터·루브리케이터 중 레귤레이터가 압력을 일정하게 유지한다."
+  },
+  {
+    id: 28,
+    difficulty: "hard",
+    q: "공기압 필터에서 수분·먼지 제거가 제대로 안 될 경우, 가장 먼저 성능 저하가 나타나는 부품은?",
+    choices: ["솔레노이드 밸브", "실린더 배럴", "타이머", "PLC CPU"],
+    answer: "솔레노이드 밸브",
+    explain: "이물질에 매우 민감하여 작동 불량의 원인이 된다."
+  },
+  {
+    id: 29,
+    difficulty: "hard",
+    q: "ISO1219에서 R, S, T로 표기되는 포트의 기능은?",
+    choices: ["배기 포트", "작업 포트", "공급 포트", "제어 포트"],
+    answer: "배기 포트",
+    explain: "ISO1219 규격에서 R/S/T는 배기 포트이다."
+  },
+  {
+    id: 30,
+    difficulty: "hard",
+    q: "솔레노이드 밸브의 코일이 소손되면 가장 먼저 발생하는 현상은?",
+    choices: ["밸브 전환 불가", "압력 과상승", "유량 증가", "필터 막힘"],
+    answer: "밸브 전환 불가",
+    explain: "코일이 타면 자속을 만들지 못해 밸브가 움직이지 않는다."
+  },
+  {
+    id: 31,
+    difficulty: "hard",
+    q: "파일럿 작동식 솔밸브에서 파일럿 포트가 막히면 어떤 문제가 발생하는가?",
+    choices: ["주 밸브가 전환되지 않음", "압력 증가", "속도 증가", "공기 누설 증가"],
+    answer: "주 밸브가 전환되지 않음",
+    explain: "파일럿 밸브가 주 밸브를 전환시키므로 파일럿이 막히면 동작하지 않는다."
+  },
+  {
+    id: 32,
+    difficulty: "hard",
+    q: "셔틀 밸브의 구조적 특성상 출력 포트에서 발생 가능한 문제는?",
+    choices: ["압력 요동", "전압 저하", "윤활 부족", "배선 오류"],
+    answer: "압력 요동",
+    explain: "두 입력 압력 차로 인해 순간적인 요동이 발생할 수 있다."
+  },
+  {
+    id: 33,
+    difficulty: "hard",
+    q: "교축 밸브 조절이 지나치게 감소되면 실린더 동작에 어떤 영향을 주는가?",
+    choices: ["속도 저하 및 스틱-슬립 현상", "속도 급증", "출력 증가", "압축률 감소"],
+    answer: "속도 저하 및 스틱-슬립 현상",
+    explain: "유량이 너무 줄어들면 동작이 끊기듯 움직일 수 있다."
+  },
+  {
+    id: 34,
+    difficulty: "hard",
+    q: "단동 실린더 사용 시 스프링 방식의 한계는 무엇인가?",
+    choices: ["복귀력 일정하지 않음", "압력 전달 불가", "회전 불가", "파일럿 필요"],
+    answer: "복귀력 일정하지 않음",
+    explain: "스프링은 장력 변화가 커 복귀력이 일정하지 않다."
+  },
+  {
+    id: 35,
+    difficulty: "hard",
+    q: "PLC에서 카운터 누적값이 저장되는 대표적 메모리 공간은?",
+    choices: ["데이터 레지스터", "출력 릴레이", "입력 포트", "타이머 레지스터"],
+    answer: "데이터 레지스터",
+    explain: "카운터와 타이머의 값은 내부 데이터 레지스터에 저장된다."
+  },
+  {
+    id: 36,
+    difficulty: "hard",
+    q: "PLC에서 입력 스캔이 변화되기 전에 출력이 먼저 실행될 경우 발생하는 대표 문제는?",
+    choices: ["출력 불일치", "메모리 오염", "배선 단락", "전류 과부하"],
+    answer: "출력 불일치",
+    explain: "입력 업데이트 전 출력이 실행되면 잘못된 결과가 발생한다."
+  },
+  {
+    id: 37,
+    difficulty: "hard",
+    q: "PLC의 SM410(0.1초 클록)이 실행 도중에도 ON/OFF가 반복되는 이유는?",
+    choices: ["스캔과 무관한 독립 타이밍 비트이기 때문", "전원 문제", "코일 소손방지 기능", "파일럿 신호 때문"],
+    answer: "스캔과 무관한 독립 타이밍 비트이기 때문",
+    explain: "클록 비트는 스캔과 상관없이 실시간 발생한다."
+  },
+  {
+    id: 38,
+    difficulty: "hard",
+    q: "데이터 전송(MOV) 명령 실행 시 소스가 변하더라도 목적지 값이 변하지 않는 경우는?",
+    choices: ["MOV 명령 실행 조건이 OFF일 때", "메모리가 손상되었을 때", "전원이 꺼졌을 때", "릴레이 접점이 동작할 때"],
+    answer: "MOV 명령 실행 조건이 OFF일 때",
+    explain: "명령 조건이 참이 아니면 MOV는 실행되지 않는다."
+  },
+  {
+    id: 39,
+    difficulty: "hard",
+    q: "R08CPU와 R16CPU의 차이 중, 고급 자동화에서 R16CPU가 선호되는 가장 큰 이유는?",
+    choices: ["더 큰 프로그램 용량", "더 작은 크기", "더 낮은 전력 소비", "사각파 발생 능력"],
+    answer: "더 큰 프로그램 용량",
+    explain: "복잡한 자동화 공정은 더 많은 논리를 요구한다."
+  },
+  {
+    id: 40,
+    difficulty: "hard",
+    q: "PLC 프로그램 실행 시 ‘스캔 타임 증가’가 가장 크게 영향을 미치는 요소는?",
+    choices: ["고속 신호 처리 안정성", "배기 소음", "필터 수명", "실린더 속도"],
+    answer: "고속 신호 처리 안정성",
+    explain: "스캔이 길어지면 고속 센서 입력을 놓칠 수 있다."
+  },
+  {
+    id: 41,
+    difficulty: "hard",
+    q: "정지 레오나드 방식에서 SCR 점호각 조절은 궁극적으로 무엇을 조절하는가?",
+    choices: ["직류 전압", "전류 주파수", "압력 강하", "코일 온도"],
+    answer: "직류 전압",
+    explain: "점호각이 작을수록 DC 출력 전압이 커진다."
+  },
+  {
+    id: 42,
+    difficulty: "hard",
+    q: "정지 레오나드 방식이 유지 보수는 어렵지만 승차감이 좋은 이유는?",
+    choices: ["속도를 부드럽게 연속 제어할 수 있기 때문", "구조가 간단하기 때문", "유압을 사용하기 때문", "압축 공기가 건조하기 때문"],
+    answer: "속도를 부드럽게 연속 제어할 수 있기 때문",
+    explain: "전압을 일정하게 변화시키는 방식이라 승차감이 매우 좋다."
+  },
+  {
+    id: 43,
+    difficulty: "hard",
+    q: "공기압에서 압력 4~6kgf/cm² 범위가 가장 일반적으로 사용되는 이유는?",
+    choices: ["안전성과 출력의 균형이 좋기 때문", "압력이 클수록 배관이 저렴해서", "저압일수록 속도가 빨라서", "고압일수록 소음이 적어서"],
+    answer: "안전성과 출력의 균형이 좋기 때문",
+    explain: "일반 산업에서 가장 효율적인 표준 압력 범위이다."
+  },
+  {
+    id: 44,
+    difficulty: "hard",
+    q: "PLC에서 타이머 설정값이 지나치게 큰 경우 시스템에 어떤 문제가 발생할 수 있는가?",
+    choices: ["응답성 저하", "압력 증가", "유량 감소", "코일 노화"],
+    answer: "응답성 저하",
+    explain: "타이머가 길면 전체 제어 동작이 지연된다."
+  },
+  {
+    id: 45,
+    difficulty: "hard",
+    q: "파일럿 신호가 약하면 방향제어밸브가 전환되지 않는 이유는?",
+    choices: ["파일럿 포트에서 충분한 힘을 제공하지 못하기 때문", "배기구 막힘", "코일 온도 상승 때문", "압력 단위 오류"],
+    answer: "파일럿 포트에서 충분한 힘을 제공하지 못하기 때문",
+    explain: "파일럿식은 파일럿 압력이 충분해야 주 밸브가 움직인다."
+  },
+  {
+    id: 46,
+    difficulty: "hard",
+    q: "PLC에서 A접점이 OFF일 때, 해당 접점은 어떤 상태인가?",
+    choices: ["개방 상태", "닫힘 상태", "출력 유지", "강제 ON"],
+    answer: "개방 상태",
+    explain: "A접점(N/O)은 기본적으로 열려 있다."
+  },
+  {
+    id: 47,
+    difficulty: "hard",
+    q: "PLC SET 코일 명령이 유지되는 조건은?",
+    choices: ["RESET 명령이 들어오기 전까지", "전원이 꺼질 때까지", "타이머가 동작할 때", "A접점이 OFF일 때만"],
+    answer: "RESET 명령이 들어오기 전까지",
+    explain: "SET은 래칭되며 RST가 와야 해제된다."
+  },
+  {
+    id: 48,
+    difficulty: "hard",
+    q: "공기압 시스템에서 마찰이 증가하면 실린더가 불규칙하게 움직이는 현상을 무엇이라 하는가?",
+    choices: ["스틱-슬립", "셔틀 이동", "서지 현상", "하모닉 진동"],
+    answer: "스틱-슬립",
+    explain: "정지 마찰과 운동 마찰 차이로 발생하는 떨림 현상이다."
+  },
+  {
+    id: 49,
+    difficulty: "hard",
+    q: "공기압 회로에서 방향제어밸브의 포트 표기를 잘못 연결하면 나타나는 현상은?",
+    choices: ["실린더 동작 반전 또는 동작 불가", "압력 증가", "유량 증가", "PLC 오작동"],
+    answer: "실린더 동작 반전 또는 동작 불가",
+    explain: "포트가 잘못 연결되면 원하는 방향으로 공기가 흐르지 않는다."
+  },
+  {
+    id: 50,
+    difficulty: "hard",
+    q: "스크롤 압축기가 공기압 시스템에서 선호되는 이유는?",
+    choices: ["진동과 소음이 적고 연속 압축이 가능하기 때문", "가격이 가장 저렴해서", "유압과 함께 사용되어서", "파일럿 압력을 자동 조절해서"],
+    answer: "진동과 소음이 적고 연속 압축이 가능하기 때문",
+    explain: "스크롤 방식은 구조적 특성상 매우 조용하며 효율이 높다."
+  },
+  {
+    id: 51,
+    difficulty: "hard",
+    q: "공기압 필터에서 드레인이 제때 배출되지 않으면 가장 먼저 영향을 받는 요소는?",
+    choices: ["밸브 내부 부식", "윤활유 증가", "압력 상승", "배관 단열 저하"],
+    answer: "밸브 내부 부식",
+    explain: "수분이 쌓이면 금속 밸브 내부가 빠르게 녹슬며 오작동을 유발한다."
+  },
+  {
+    id: 52,
+    difficulty: "hard",
+    q: "유압과 비교했을 때 공기압이 ‘출력 면에서 불리한’ 이유는?",
+    choices: ["압축성 때문", "소음 때문", "윤활 부족 때문", "배관 길이 때문"],
+    answer: "압축성 때문",
+    explain: "공기는 압축되기 때문에 에너지 전달 효율이 낮고 큰 힘을 만들기 어렵다."
+  },
+  {
+    id: 53,
+    difficulty: "hard",
+    q: "ISO5599에서 제어포트 번호 10,12,14는 어떤 신호를 전달하는가?",
+    choices: ["파일럿 신호", "배기 신호", "루브리케이션 신호", "냉각 신호"],
+    answer: "파일럿 신호",
+    explain: "제어포트는 밸브를 전환시키는 파일럿 압력 신호를 전달한다."
+  },
+  {
+    id: 54,
+    difficulty: "hard",
+    q: "단동 실린더의 내장 스프링이 피로로 인해 약해지면 발생하는 문제는?",
+    choices: ["복귀 불완전", "속도 증가", "압력 상승", "윤활 과다"],
+    answer: "복귀 불완전",
+    explain: "스프링 복귀력이 약해져 완전 복귀가 이루어지지 않는다."
+  },
+  {
+    id: 55,
+    difficulty: "hard",
+    q: "솔레노이드 밸브의 직접 작동식이 '소용량'인 이유는?",
+    choices: ["코일 힘으로 밸브를 직접 움직여야 하기 때문", "파일럿 신호 부족", "구조가 복잡해서", "배관 저항 때문"],
+    answer: "코일 힘으로 밸브를 직접 움직여야 하기 때문",
+    explain: "직접식은 코일이 바로 밸브를 움직여야 하므로 큰 밸브에는 부적합하다."
+  },
+
+  {
+    id: 56,
+    difficulty: "hard",
+    q: "간접작동식 솔밸브가 ‘전기소모량이 적다’고 하는 이유는?",
+    choices: ["파일럿 밸브만 움직이면 되기 때문", "코일이 두 개라서", "전압 강하가 커서", "밸브 스트로크가 길어서"],
+    answer: "파일럿 밸브만 움직이면 되기 때문",
+    explain: "주 밸브는 파일럿 압력으로 움직여 전기에너지가 적게 들어간다."
+  },
+  {
+    id: 57,
+    difficulty: "hard",
+    q: "셔틀 밸브가 OR 논리를 수행할 수 있는 이유는?",
+    choices: ["더 높은 압력의 공기만 선택해 통과시키기 때문", "두 배관을 동시에 연결하기 때문", "누설이 없기 때문", "스프링이 강해서"],
+    answer: "더 높은 압력의 공기만 선택해 통과시키기 때문",
+    explain: "압력이 높은 쪽으로 내부 플러그가 이동하여 해당 라인이 출력된다."
+  },
+  {
+    id: 58,
+    difficulty: "hard",
+    q: "교축 밸브가 실린더 속도를 조절할 수 있는 원리는?",
+    choices: ["공기 유량 변경", "압력 변경", "온도 변경", "진공 형성"],
+    answer: "공기 유량 변경",
+    explain: "유량 조절로 실린더의 작동 속도가 직접적으로 변한다."
+  },
+  {
+    id: 59,
+    difficulty: "hard",
+    q: "PLC에서 ‘명령어 처리 속도가 매우 빠르다’는 장점은 어떤 상황에서 가장 유리한가?",
+    choices: ["고속 센서 사용 시", "배관 교체 시", "공기압 필터 교환 시", "유압 실린더 유지보수 시"],
+    answer: "고속 센서 사용 시",
+    explain: "입력 변화가 빠른 센서 신호도 놓치지 않고 처리할 수 있다."
+  },
+  {
+    id: 60,
+    difficulty: "hard",
+    q: "PLC 실시간 명령어 방식의 가장 큰 장점은?",
+    choices: ["프로그램 수정 용이", "가격이 저렴", "입력 포트 증가", "출력 전압 감소"],
+    answer: "프로그램 수정 용이",
+    explain: "릴레이 방식과 달리 배선 변경 없이 즉각적으로 프로그램 수정이 가능하다."
+  },
+
+  {
+    id: 61,
+    difficulty: "hard",
+    q: "PLC 프로그램 처리 순서 중 '변환(기계어 생성)' 단계는 왜 필요한가?",
+    choices: ["PLC가 기계어만 이해하기 때문", "배선 점검을 위해", "전압 보정을 위해", "타이머 초기화를 위해"],
+    answer: "PLC가 기계어만 이해하기 때문",
+    explain: "작성된 명령어를 PLC가 실행 가능한 코드로 변환해야 한다."
+  },
+  {
+    id: 62,
+    difficulty: "hard",
+    q: "FBD 언어의 가장 큰 장점은?",
+    choices: ["논리 흐름을 시각적으로 표현할 수 있다", "메모리 점유가 적다", "속도가 가장 빠르다", "프로그래밍이 자동으로 된다"],
+    answer: "논리 흐름을 시각적으로 표현할 수 있다",
+    explain: "그래픽 기반 언어라 가독성이 좋다."
+  },
+  {
+    id: 63,
+    difficulty: "hard",
+    q: "하강펄스 접점이 사용하는 상황은?",
+    choices: ["입력이 OFF되는 순간 1스캔 동작이 필요할 때", "항상 ON이 필요할 때", "전원투입부하제어 시", "SET 명령 사용 시"],
+    answer: "입력이 OFF되는 순간 1스캔 동작이 필요할 때",
+    explain: "하강펄스는 OFF 순간을 포착한다."
+  },
+  {
+    id: 64,
+    difficulty: "hard",
+    q: "PLC에서 SET 코일이 유지되는 특성 때문에 일반적으로 필요한 추가 요소는?",
+    choices: ["RESET 명령", "타이머 명령", "배선 보강", "압력 센서"],
+    answer: "RESET 명령",
+    explain: "SET은 유지형 출력이므로 RST가 반드시 필요하다."
+  },
+  {
+    id: 65,
+    difficulty: "hard",
+    q: "PLC에서 시프트 명령을 사용하면 어떤 효과가 나타나는가?",
+    choices: ["비트가 지정 자리수만큼 이동", "속도 증가", "메모리 초기화", "전압 증가"],
+    answer: "비트가 지정 자리수만큼 이동",
+    explain: "시프트 연산은 특정 방향으로 비트를 이동시킨다."
+  },
+
+  {
+    id: 66,
+    difficulty: "hard",
+    q: "정지 레오나드 방식이 고속 엘리베이터에 적합한 이유는?",
+    choices: ["속도를 연속적으로 정밀 제어 가능", "가격이 저렴", "내구성이 매우 높음", "유압과 결합되기 때문"],
+    answer: "속도를 연속적으로 정밀 제어 가능",
+    explain: "SCR 점호각 조절로 정밀한 속도 조절이 가능해 승차감이 뛰어나다."
+  },
+  {
+    id: 67,
+    difficulty: "hard",
+    q: "SCR 점호각이 증가하면 직류 전동기의 속도는 어떻게 되는가?",
+    choices: ["감소", "증가", "변화 없음", "무작위 변화"],
+    answer: "감소",
+    explain: "점호각이 커지면 평균 전압이 낮아져 속도가 떨어진다."
+  },
+  {
+    id: 68,
+    difficulty: "hard",
+    q: "공기압 시스템에서 ‘응답성’이 유압보다 떨어지는 가장 큰 이유는?",
+    choices: ["공기의 압축성", "배관 마찰", "윤활 부족", "밸브 무게"],
+    answer: "공기의 압축성",
+    explain: "압축되는 성질 때문에 즉각적인 힘 전달이 어렵다."
+  },
+  {
+    id: 69,
+    difficulty: "hard",
+    q: "서비스유닛에서 루브리케이터가 공급하는 윤활유는 주로 어디에 영향을 주는가?",
+    choices: ["실린더 피스톤", "배선", "PLC CPU", "압력게이지"],
+    answer: "실린더 피스톤",
+    explain: "기계적 피스톤 마찰을 줄여 수명을 연장한다."
+  },
+  {
+    id: 70,
+    difficulty: "hard",
+    q: "공기압 압력 조정이 제어 방식에서 중요한 이유는?",
+    choices: ["출력을 조절할 수 있기 때문", "온도를 낮출 수 있기 때문", "배관을 청소하기 때문", "필터 기능을 강화하기 때문"],
+    answer: "출력을 조절할 수 있기 때문",
+    explain: "압력은 실린더가 내는 힘(출력)을 직접적으로 결정한다."
+  },
+
+  {
+    id: 71,
+    difficulty: "hard",
+    q: "PLC에서 ‘외부 노이즈 방호 대책’이 필요한 이유는?",
+    choices: ["오동작 방지", "속도 증가", "메모리 절약", "압축률 증가"],
+    answer: "오동작 방지",
+    explain: "노이즈는 신호를 왜곡시켜 잘못된 동작을 유발할 수 있다."
+  },
+  {
+    id: 72,
+    difficulty: "hard",
+    q: "PLC 제조사별 소프트웨어 통일이 어려운 이유는?",
+    choices: ["구조와 명령셋이 다르기 때문", "전압 규격이 동일해서", "배선 방식이 같아서", "CPU 속도가 같아서"],
+    answer: "구조와 명령셋이 다르기 때문",
+    explain: "제조사마다 고유 규격이 있어 호환성이 낮다."
+  },
+  {
+    id: 73,
+    difficulty: "hard",
+    q: "PLC 데이터 레지스터에 저장된 값이 예기치 않게 변경될 경우 가장 먼저 의심해야 할 요소는?",
+    choices: ["논리 명령 실행 조건", "압력 센서", "유량계", "배관 누설"],
+    answer: "논리 명령 실행 조건",
+    explain: "논리 명령(TIM, CNT, MOV 등)이 ON 조건일 때만 값이 변한다."
+  },
+  {
+    id: 74,
+    difficulty: "hard",
+    q: "공기압 장치가 있는 환경에서 윤활이 부족하면 가장 먼저 발생하는 문제는?",
+    choices: ["마찰 증가로 인한 스틱-슬립", "압력 상승", "응답성 증가", "배기 소음 감소"],
+    answer: "마찰 증가로 인한 스틱-슬립",
+    explain: "윤활 부족은 실린더 동작 불안정을 일으킨다."
+  },
+  {
+    id: 75,
+    difficulty: "hard",
+    q: "PLC 프로그램에서 ‘프로그램 용량’이 부족할 경우 나타나는 문제는?",
+    choices: ["새로운 명령을 추가할 수 없음", "압력 손실 증가", "실린더 속도 저하", "타이머 빠른 동작"],
+    answer: "새로운 명령을 추가할 수 없음",
+    explain: "메모리 한계로 인해 명령어 추가가 불가능해진다."
+  }, {
+    id: 76,
+    difficulty: "hard",
+    q: "공기압 장치에서 압력이 4~6 kgf/cm² 범위를 벗어나면 가장 먼저 문제가 되는 부분은?",
+    choices: ["실린더의 출력", "PLC 스캔 속도", "파일럿 포트 크기", "윤활기 위치"],
+    answer: "실린더의 출력",
+    explain: "압력이 너무 높거나 낮으면 실린더가 설계된 힘을 내지 못한다."
+  },
+  {
+    id: 77,
+    difficulty: "hard",
+    q: "공기압 시스템에서 '소음'이 주로 발생하는 이유는?",
+    choices: ["배기 시 급격한 압력 변화", "윤활유 부족", "밸브 무게 증가", "배관 길이가 짧아서"],
+    answer: "배기 시 급격한 압력 변화",
+    explain: "압축된 공기가 빠르게 배출되면서 소음이 발생한다."
+  },
+  {
+    id: 78,
+    difficulty: "hard",
+    q: "ISO1219에서 ‘X, Y, Z’는 무엇을 의미하는가?",
+    choices: ["제어 포트", "배기 포트", "공급 포트", "작업 포트"],
+    answer: "제어 포트",
+    explain: "ISO1219 규격에서 X,Y,Z는 제어용 포트를 의미한다."
+  },
+  {
+    id: 79,
+    difficulty: "hard",
+    q: "방향제어밸브에서 사각형 외부에 그려진 직선은 무엇을 나타내는가?",
+    choices: ["입출구 연결구", "배기구 방향", "압력 손실", "속도 조절"],
+    answer: "입출구 연결구",
+    explain: "사각형 외부 직선은 실제 배관 연결을 뜻한다."
+  },
+  {
+    id: 80,
+    difficulty: "hard",
+    q: "솔레노이드 밸브에서 ‘파일럿 압력 상실’이 발생하면 어떤 문제가 생기는가?",
+    choices: ["밸브 전환 불가", "압력 증가", "윤활 과다", "실린더 속도 증가"],
+    answer: "밸브 전환 불가",
+    explain: "간접작동식은 파일럿 압력이 있어야 주밸브가 움직일 수 있다."
+  },
+
+  {
+    id: 81,
+    difficulty: "hard",
+    q: "셔틀 밸브에서 두 입력 압력이 거의 동일할 때 발생할 수 있는 문제는?",
+    choices: ["출력이 불안정해짐", "출력이 2배가 됨", "배기가 불가능함", "윤활 과다"],
+    answer: "출력이 불안정해짐",
+    explain: "내부 플러그가 어느 방향으로 이동할지 불안정해진다."
+  },
+  {
+    id: 82,
+    difficulty: "hard",
+    q: "교축 밸브 설치 시 가장 고려해야 하는 사항은?",
+    choices: ["유량 변화가 실린더 동작에 직접적 영향을 미침", "압력게이지와 가까워야 함", "PLC와 같은 패널 내부에 설치", "셔틀밸브 옆에 설치"],
+    answer: "유량 변화가 실린더 동작에 직접적 영향을 미침",
+    explain: "속도 제어는 유량에 의존하므로 설치 위치가 중요하다."
+  },
+  {
+    id: 83,
+    difficulty: "hard",
+    q: "단동 실린더의 스프링이 지나치게 강하면 어떤 문제가 생기는가?",
+    choices: ["전진 힘 감소", "속도 증가", "배기 압력 감소", "루브리케이터 불필요"],
+    answer: "전진 힘 감소",
+    explain: "스프링 저항이 커지면 전진력을 더 많이 소모하게 된다."
+  },
+  {
+    id: 84,
+    difficulty: "hard",
+    q: "PLC의 카운터 명령이 사용하는 내부 데이터는 일반적으로 무엇인가?",
+    choices: ["데이터 레지스터", "파일럿 압력", "배관 길이 정보", "전원 주파수"],
+    answer: "데이터 레지스터",
+    explain: "CNT 명령은 내부 레지스터 값을 증감시키며 조건을 비교한다."
+  },
+  {
+    id: 85,
+    difficulty: "hard",
+    q: "PLC의 외부 노이즈 대책으로 가장 적절한 것은?",
+    choices: ["접지 강화", "코일 교체", "유량 조절", "압력 상승"],
+    answer: "접지 강화",
+    explain: "노이즈는 전기적 간섭이므로 접지와 차폐가 필수적이다."
+  },
+
+  {
+    id: 86,
+    difficulty: "hard",
+    q: "SET 코일이 의도치 않게 유지될 때 가장 먼저 확인해야 하는 것은?",
+    choices: ["RESET 조건", "윤활유 양", "공기압 압력", "배관 청결"],
+    answer: "RESET 조건",
+    explain: "SET은 유지형이므로 해제 조건이 충족되는지 확인해야 한다."
+  },
+  {
+    id: 87,
+    difficulty: "hard",
+    q: "시프트 명령으로 데이터를 왼쪽으로 이동하면 비트 구조에 어떤 변화가 있는가?",
+    choices: ["빈 자리는 0으로 채워짐", "배기압이 증가", "전류가 증가", "속도가 감소"],
+    answer: "빈 자리는 0으로 채워짐",
+    explain: "일반적 논리 시프트에서 이동 후 빈 공간은 0으로 채워진다."
+  },
+  {
+    id: 88,
+    difficulty: "hard",
+    q: "SCR 점호각 조절 방식에서 전동기의 토크는 어떤 변화를 보이는가?",
+    choices: ["전압과 함께 변화", "변화 없음", "점호각과 반대로 증가", "항상 최대"],
+    answer: "전압과 함께 변화",
+    explain: "점호각에 따라 전압이 바뀌면 토크도 변한다."
+  },
+  {
+    id: 89,
+    difficulty: "hard",
+    q: "정지 레오나드 방식의 유지보수가 어려운 주요 이유는?",
+    choices: ["SCR 회로가 복잡하기 때문", "압력 손실 때문", "배관이 많아서", "스프링 강도가 높아서"],
+    answer: "SCR 회로가 복잡하기 때문",
+    explain: "전력전자 소자가 많아 유지보수가 복잡해진다."
+  },
+  {
+    id: 90,
+    difficulty: "hard",
+    q: "공기압 장치에서 배기 소음 저감을 위해 일반적으로 사용하는 장치는?",
+    choices: ["실렌서", "셔틀밸브", "루브리케이터", "A접점"],
+    answer: "실렌서",
+    explain: "배기 소음을 줄이기 위해 실렌서를 설치한다."
+  },
+
+  {
+    id: 91,
+    difficulty: "hard",
+    q: "솔레노이드 밸브의 발열을 줄이는 가장 적절한 방법은?",
+    choices: ["간접작동식 채택", "압력 증가", "필터 제거", "배기량 증가"],
+    answer: "간접작동식 채택",
+    explain: "작은 파일럿 밸브만 움직여 발열이 적다."
+  },
+  {
+    id: 92,
+    difficulty: "hard",
+    q: "PLC 프로그램의 ‘스캔 시간’이 길어지면 어떤 문제가 발생하는가?",
+    choices: ["입력 변화 감지 지연", "압력 상승", "유량 감소", "배관 손상"],
+    answer: "입력 변화 감지 지연",
+    explain: "스캔이 느리면 빠른 입력 변화를 놓친다."
+  },
+  {
+    id: 93,
+    difficulty: "hard",
+    q: "PLC에서 MOV 명령이 오작동할 가능성이 가장 높은 상황은?",
+    choices: ["주소가 겹칠 때", "압력이 내려갈 때", "전동기 발열 시", "유량이 바뀔 때"],
+    answer: "주소가 겹칠 때",
+    explain: "잘못된 주소 지정은 예상치 못한 데이터 복사를 유발한다."
+  },
+  {
+    id: 94,
+    difficulty: "hard",
+    q: "PLC 데이터 레지스터의 용량이 큰 모델(R16CPU)이 필요한 상황은?",
+    choices: ["데이터 처리량이 많은 자동화 라인", "소형 실린더 하나만 사용하는 설비", "단순 온오프 제어", "수동 조작"],
+    answer: "데이터 처리량이 많은 자동화 라인",
+    explain: "큰 메모리는 복잡한 연산과 많은 데이터 저장에 필요하다."
+  },
+  {
+    id: 95,
+    difficulty: "hard",
+    q: "유압이 공기압보다 응답성이 좋은 이유는?",
+    choices: ["유체가 비압축성", "밸브 구조가 단순", "윤활유가 많음", "배관이 짧음"],
+    answer: "유체가 비압축성",
+    explain: "비압축성 유체는 힘 전달이 즉각적이다."
+  },
+
+  {
+    id: 96,
+    difficulty: "hard",
+    q: "압축 공기 중 수분이 많은 경우 PLC 외부 장비에서 발생할 수 있는 문제는?",
+    choices: ["센서 오동작", "프로그램 삭제", "메모리 증가", "전류 감쇠"],
+    answer: "센서 오동작",
+    explain: "수분은 접점 부식과 누전을 유발하여 센서 동작을 불안정하게 만든다."
+  },
+  {
+    id: 97,
+    difficulty: "hard",
+    q: "공기압 시스템의 입력제어밸브가 문제를 일으킬 경우 가장 먼저 확인해야 하는 것은?",
+    choices: ["필터의 오염", "배관 온도", "레버 길이", "PLC 스캔 시간"],
+    answer: "필터의 오염",
+    explain: "필터가 막히면 입력 압력이 부족해 밸브가 작동하지 않는다."
+  },
+  {
+    id: 98,
+    difficulty: "hard",
+    q: "유압 대비 공기압이 ‘보관성이 좋다’고 평가받는 이유는?",
+    choices: ["압축 공기를 탱크에 저장할 수 있기 때문", "유압유가 비싸서", "유량이 적어서", "밸브 크기가 작아서"],
+    answer: "압축 공기를 탱크에 저장할 수 있기 때문",
+    explain: "압축공기는 저장이 쉽고 안전하다."
+  },
+  {
+    id: 99,
+    difficulty: "hard",
+    q: "PLC에서 LD 명령 시간이 짧을수록 얻는 장점은?",
+    choices: ["빠른 논리 처리", "압력 상승", "출력 증가", "배관 감소"],
+    answer: "빠른 논리 처리",
+    explain: "LD 시간은 실행 속도와 직결된다."
+  },
+  {
+    id: 100,
+    difficulty: "hard",
+    q: "정지 레오나드 방식이 워드 레오나드 방식보다 손실이 적은 이유는?",
+    choices: ["기계식 회전기 없이 전력 변환을 수행하기 때문", "압력 손실이 적어서", "배관 길이가 짧아서", "윤활유가 많아서"],
+    answer: "기계식 회전기 없이 전력 변환을 수행하기 때문",
+    explain: "워드 방식은 발전기/전동기 구성이지만 정지 레오나드는 반도체로 직접 변환한다."
+  }];
+
+/* 화면에 실제로 출제된 문제 저장 */
+let CURRENT_QUESTIONS = [];
+
+/* ============================
+   유틸 함수
+   ============================ */
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+/* ============================
+   DOM 요소
+   ============================ */
+const btnGenerate = document.getElementById("generate");
+const btnCheck = document.getElementById("check");
+const btnRegen = document.getElementById("regen");
+const quizArea = document.getElementById("quiz");
+
+/* ============================
+   문제 생성
+   ============================ */
+btnGenerate.onclick = () => {
+  const difficulty = document.getElementById("difficulty").value;
+  const count = Number(document.getElementById("count").value);
+  const shuffleChoice = document.getElementById("shuffle").value;
+
+  const picked = QUESTION_BANK.filter(q => q.difficulty === difficulty);
+
+  quizArea.innerHTML = "";
+
+  if (picked.length === 0) {
+    quizArea.innerHTML = `<div class="result">해당 난이도에 등록된 문제가 없습니다.</div>`;
+    btnCheck.disabled = true;
+    btnRegen.disabled = true;
+    return;
+  }
+
+  /* 출제 문제 저장 */
+  CURRENT_QUESTIONS = shuffleArray([...picked]).slice(0, count);
+
+  CURRENT_QUESTIONS.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    let choices = [...q.choices];
+    if (shuffleChoice === "yes") choices = shuffleArray(choices);
+
+    card.innerHTML = `
+      <div class="q">${idx + 1}. ${q.q}</div>
+      <div class="opts">
+        ${choices.map(c =>
+          `<label class="opt"><input type="radio" name="q${idx}" value="${c}"> ${c}</label>`
+        ).join("")}
+      </div>
+      <div class="small" id="ex${idx}"></div>
+    `;
+    quizArea.appendChild(card);
+  });
+
+  btnCheck.disabled = false;
+  btnRegen.disabled = false;
+};
+
+/* ============================
+   채점 (문제은행이 아닌 CURRENT_QUESTIONS 사용)
+   ============================ */
+btnCheck.onclick = () => {
+  const cards = quizArea.querySelectorAll(".card");
+
+  cards.forEach((card, idx) => {
+    const selected = card.querySelector("input[type='radio']:checked");
+    const explanation = card.querySelector(`#ex${idx}`);
+
+    /* 올바른 문제 연결 */
+    const q = CURRENT_QUESTIONS[idx];
+
+    if (!selected) {
+      explanation.textContent = "미선택";
+      explanation.style.color = "#ff7a7a";
+      return;
+    }
+
+    if (selected.value === q.answer) {
+      selected.parentElement.classList.add("correct");
+      explanation.textContent = q.explain;
+      explanation.style.color = "#6ee7b7";
+    } else {
+      selected.parentElement.classList.add("wrong");
+      explanation.textContent = `오답 | 정답: ${q.answer}`;
+      explanation.style.color = "#ff7a7a";
+    }
+  });
+
+  btnCheck.disabled = true;
+};
+
+/* ============================
+   다시 출제
+   ============================ */
+btnRegen.onclick = () => {
+  quizArea.innerHTML = "";
+  btnCheck.disabled = true;
+  btnRegen.disabled = true;
+};
+</script>
+
+</body>
+</html>
