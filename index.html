@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Gift System</title>
+<style>
+body {
+  font-family: 'Pretendard', sans-serif;
+  background: #0f1220;
+  color: #fff;
+  margin: 0;
+}
+.container {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+h2 {
+  margin-top: 30px;
+}
+.box {
+  background: #1a1d35;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 10px;
+}
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #6c7cff;
+  color: white;
+  cursor: pointer;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: none;
+}
+.gift {
+  padding: 10px;
+  border-bottom: 1px solid #2c2f55;
+  cursor: pointer;
+}
+.toggle {
+  margin-top: 10px;
+}
+.hidden {
+  opacity: 0.6;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="login">
+  <h2>로그인</h2>
+  <input id="id" placeholder="ID">
+  <input id="pw" placeholder="PW" type="password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="app" style="display:none">
+  <h2>🎁 보유 중인 선물</h2>
+  <label class="toggle">
+    <input type="checkbox" id="hideToggle" onchange="toggleHide()"> ??? 숨기기
+  </label>
+  <div class="box" id="owned"></div>
+
+  <h2>💭 받고 싶은 선물</h2>
+  <input id="wishInput" placeholder="받고 싶은 선물 적기">
+  <button onclick="addWish()">추가</button>
+  <div class="box" id="wish"></div>
+</div>
+
+<script>
+const USER_ID = "minseo";
+const USER_PW = "1009";
+
+let hideUnknown = true;
+
+function login() {
+  if(id.value === USER_ID && pw.value === USER_PW) {
+    loginDiv.style.display = "none";
+    app.style.display = "block";
+    load();
+  } else alert("로그인 실패");
+}
+
+function load() {
+  hideUnknown = JSON.parse(localStorage.getItem("hide")) ?? true;
+  hideToggle.checked = hideUnknown;
+  renderOwned();
+  renderWish();
+}
+
+function toggleHide() {
+  hideUnknown = hideToggle.checked;
+  localStorage.setItem("hide", hideUnknown);
+  renderOwned();
+}
+
+function renderOwned() {
+  const data = JSON.parse(localStorage.getItem("owned")) || [];
+  owned.innerHTML = "";
+  data.forEach((g, i) => {
+    const name = (!g.delivered && hideUnknown) ? "???" : g.name;
+    owned.innerHTML += `
+      <div class="gift ${!g.delivered ? "hidden" : ""}"
+       onclick="alert('배송 상태: ${g.status}')">
+       ${name}
+      </div>`;
+  });
+}
+
+function renderWish() {
+  const data = JSON.parse(localStorage.getItem("wish")) || [];
+  wish.innerHTML = data.map(w => `<div class="gift">${w}</div>`).join("");
+}
+
+function addWish() {
+  const v = wishInput.value.trim();
+  if(!v) return;
+  const data = JSON.parse(localStorage.getItem("wish")) || [];
+  data.push(v);
+  localStorage.setItem("wish", JSON.stringify(data));
+  wishInput.value = "";
+  renderWish();
+}
+
+/* 🔧 테스트용: 콘솔에서 실행
+addOwned("헤드셋", "배송 중");
+deliver(0);
+*/
+function addOwned(name, status) {
+  const data = JSON.parse(localStorage.getItem("owned")) || [];
+  data.push({name, status, delivered:false});
+  localStorage.setItem("owned", JSON.stringify(data));
+  renderOwned();
+}
+function deliver(i) {
+  const data = JSON.parse(localStorage.getItem("owned"));
+  data[i].delivered = true;
+  data[i].status = "배송 완료";
+  localStorage.setItem("owned", JSON.stringify(data));
+  renderOwned();
+}
+</script>
+</body>
+</html>
