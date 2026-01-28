@@ -46,54 +46,60 @@ button {
 </head>
 <body>
 
-<div class="container" id="login">
+<div class="container" id="loginBox">
   <h2>로그인</h2>
-  <input id="id" placeholder="ID">
-  <input id="pw" type="password" placeholder="PW">
-  <button onclick="login()">Login</button>
+  <input id="loginId" placeholder="ID">
+  <input id="loginPw" type="password" placeholder="PW">
+  <button onclick="doLogin()">Login</button>
 </div>
 
 <div class="container" id="app" style="display:none">
 
   <h2>🎁 보유 중인 선물</h2>
   <div class="toggle" id="hideBox" style="display:none">
-    <label><input type="checkbox" id="hideToggle" onchange="toggleHide()"> ??? 숨기기</label>
+    <label><input type="checkbox" id="hideToggle"> ??? 숨기기</label>
   </div>
   <div class="box" id="owned"></div>
 
   <div id="adminPanel" style="display:none">
     <h2>⚙ 관리자 설정</h2>
     <input id="newGiftName" placeholder="선물 이름">
-    <input id="newGiftStatus" placeholder="배송 상태 (예: 배송 중)">
+    <input id="newGiftStatus" placeholder="배송 상태">
     <button onclick="addOwned()">선물 추가</button>
   </div>
 
   <h2>💭 받고 싶은 선물</h2>
-  <input id="wishInput" placeholder="받고 싶은 선물 적기">
+  <input id="wishInput" placeholder="받고 싶은 선물">
   <button onclick="addWish()">추가</button>
   <div class="box" id="wish"></div>
 </div>
 
 <script>
 const USERS = {
-  saul: { pw:"0519", role:"admin" },
-  minseo: { pw:"1009", role:"user" }
+  saul:   { pw:"0519", role:"admin" },
+  minseo:{ pw:"1009", role:"user" }
 };
 
 let role = "";
 let hideUnknown = true;
 
-function login() {
-  const u = USERS[id.value];
-  if(!u || u.pw !== pw.value) return alert("로그인 실패");
+function doLogin() {
+  const id = document.getElementById("loginId").value;
+  const pw = document.getElementById("loginPw").value;
 
-  role = u.role;
-  login.style.display = "none";
-  app.style.display = "block";
+  const user = USERS[id];
+  if(!user || user.pw !== pw) {
+    alert("로그인 실패");
+    return;
+  }
+
+  role = user.role;
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("app").style.display = "block";
 
   if(role === "admin") {
-    adminPanel.style.display = "block";
-    hideBox.style.display = "block";
+    document.getElementById("adminPanel").style.display = "block";
+    document.getElementById("hideBox").style.display = "block";
   }
 
   load();
@@ -101,41 +107,44 @@ function login() {
 
 function load() {
   hideUnknown = JSON.parse(localStorage.getItem("hide")) ?? true;
-  hideToggle.checked = hideUnknown;
+  document.getElementById("hideToggle").checked = hideUnknown;
+  document.getElementById("hideToggle").onchange = toggleHide;
   renderOwned();
   renderWish();
 }
 
 function toggleHide() {
-  hideUnknown = hideToggle.checked;
+  hideUnknown = document.getElementById("hideToggle").checked;
   localStorage.setItem("hide", hideUnknown);
   renderOwned();
 }
 
 function renderOwned() {
+  const ownedBox = document.getElementById("owned");
   const data = JSON.parse(localStorage.getItem("owned")) || [];
-  owned.innerHTML = "";
+  ownedBox.innerHTML = "";
+
   data.forEach((g, i) => {
-    const showName = (!g.delivered && hideUnknown) ? "???" : g.name;
-    owned.innerHTML += `
-      <div class="gift ${!g.delivered?"hidden":""} ${role==="admin"?"admin":""}"
-       onclick="${role==="admin" ? `adminGift(${i})` : `alert('배송 상태: ${g.status}')`}">
-       ${showName}
-      </div>`;
+    const name = (!g.delivered && hideUnknown) ? "???" : g.name;
+    const div = document.createElement("div");
+    div.className = "gift " + (!g.delivered ? "hidden" : "") + (role==="admin"?" admin":"");
+    div.innerText = name;
+    div.onclick = () => {
+      if(role==="admin") adminGift(i);
+      else alert("배송 상태: " + g.status);
+    };
+    ownedBox.appendChild(div);
   });
 }
 
 function adminGift(i) {
   const data = JSON.parse(localStorage.getItem("owned"));
-  const action = prompt(
-`1: 배송 상태 변경
-2: 배송 완료 처리`, "1");
-
-  if(action==="1") {
+  const act = prompt("1: 배송 상태 변경\n2: 배송 완료 처리", "1");
+  if(act==="1") {
     const s = prompt("새 배송 상태");
     if(s) data[i].status = s;
   }
-  if(action==="2") {
+  if(act==="2") {
     data[i].delivered = true;
     data[i].status = "배송 완료";
   }
