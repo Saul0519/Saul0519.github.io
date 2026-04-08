@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>열처리기능사 필기 CBT 기출문제 모의고사</title>
+    <title>열처리기능사 기출 모의고사</title>
     <style>
-        /* 기본 스타일 및 폰트 설정 */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
         :root {
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --bg-color: #f8fafc;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
+            --text-main: #334155;
             --text-muted: #64748b;
-            --border: #e2e8f0;
-            --correct-bg: #dcfce7;
+            --border: #cbd5e1;
+            --correct-bg: #f0fdf4;
             --correct-border: #22c55e;
-            --wrong-bg: #fee2e2;
+            --wrong-bg: #fef2f2;
             --wrong-border: #ef4444;
         }
 
@@ -38,31 +37,28 @@
             width: 100%;
         }
 
-        /* 헤더 부분 */
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         header h1 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: var(--text-main);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         header p {
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        /* 카드 UI 공통 */
         .card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
             margin-bottom: 20px;
         }
 
-        /* 설정 화면 */
         #setup-screen {
             text-align: center;
         }
@@ -72,52 +68,44 @@
         .input-group label {
             display: block;
             margin-bottom: 10px;
-            font-weight: 600;
+            font-weight: 500;
         }
         .input-group input {
-            width: 100px;
+            width: 120px;
             padding: 10px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             outline: none;
-            transition: border-color 0.2s;
         }
         .input-group input:focus {
             border-color: var(--primary);
         }
 
-        /* 버튼 스타일 */
         .btn {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 14px 28px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
             width: 100%;
-            max-width: 300px;
+            max-width: 250px;
         }
         .btn:hover {
             background-color: var(--primary-hover);
         }
-        .btn:active {
-            transform: scale(0.98);
-        }
         .btn-outline {
             background-color: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
         }
         .btn-outline:hover {
-            background-color: #eff6ff;
+            background-color: #f8fafc;
         }
 
-        /* 퀴즈 화면 */
         .question-block {
             margin-bottom: 30px;
             border-bottom: 1px solid var(--border);
@@ -129,15 +117,25 @@
             padding-bottom: 0;
         }
         .question-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         .q-number {
-            color: var(--primary);
+            font-weight: 600;
         }
+        .q-type {
+            font-size: 0.8rem;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #475569;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        
         .options-list {
             list-style: none;
             padding: 0;
@@ -146,84 +144,95 @@
         .option-item {
             display: flex;
             align-items: center;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
         }
         .option-item:hover {
-            border-color: var(--primary);
             background-color: #f8fafc;
         }
         .option-item input[type="radio"] {
-            margin-right: 15px;
-            transform: scale(1.2);
+            margin-right: 12px;
             cursor: pointer;
         }
         .option-item label {
             cursor: pointer;
             width: 100%;
-            font-size: 1.05rem;
+            font-size: 1rem;
         }
         .option-item.selected {
             border-color: var(--primary);
-            background-color: #eff6ff;
+            background-color: #f0fdf4;
         }
 
-        /* 결과 화면 특징 */
+        .saq-input-wrap {
+            margin-top: 10px;
+        }
+        .saq-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+        }
+        .saq-input:focus {
+            border-color: var(--primary);
+        }
+
         .score-board {
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-radius: 16px;
+            padding: 30px 20px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             margin-bottom: 30px;
         }
         .score-board h2 {
             margin: 0 0 10px 0;
-            font-size: 2.5rem;
-            color: var(--primary);
+            font-size: 2rem;
         }
         
-        /* 채점 결과 피드백 스타일 */
         .option-item.correct-answer {
             background-color: var(--correct-bg);
             border-color: var(--correct-border);
-            color: #166534;
-            font-weight: 600;
+            font-weight: 500;
         }
         .option-item.wrong-answer {
             background-color: var(--wrong-bg);
             border-color: var(--wrong-border);
-            color: #991b1b;
         }
-        .feedback-msg {
-            margin-top: 15px;
-            padding: 10px 15px;
-            border-radius: 6px;
+        .saq-result {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
             font-size: 0.95rem;
-            font-weight: 600;
         }
-        .feedback-correct {
+        .saq-correct {
             background-color: var(--correct-bg);
-            color: var(--correct-border);
+            border: 1px solid var(--correct-border);
         }
-        .feedback-wrong {
+        .saq-wrong {
             background-color: var(--wrong-bg);
-            color: var(--wrong-border);
+            border: 1px solid var(--wrong-border);
         }
 
-        .hidden {
-            display: none !important;
+        .feedback-msg {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
+        .feedback-correct { color: #166534; }
+        .feedback-wrong { color: #991b1b; }
 
-        /* 하단 고정 버튼 영역 */
+        .hidden { display: none !important; }
+
         .action-bar {
-            position: sticky;
-            bottom: 20px;
-            margin-top: 30px;
             text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -231,47 +240,38 @@
 
 <div class="container">
     <header>
-        <h1>🔥 열처리기능사 실전 CBT 모의고사</h1>
-        <p>핵심 요약 100제 중 원하는 만큼 랜덤으로 출제됩니다.</p>
+        <h1>열처리기능사 실전 모의고사</h1>
+        <p>핵심 요약 100제 CBT</p>
     </header>
 
-    <!-- 1. 설정 화면 -->
     <div id="setup-screen" class="card">
-        <h2>몇 문제를 풀어볼까요?</h2>
         <div class="input-group">
-            <label for="num-questions">출제 문항 수 (최대 100문제)</label>
+            <label for="num-questions">출제 문항 수 입력 (최대 100)</label>
             <input type="number" id="num-questions" value="10" min="1" max="100">
         </div>
-        <button class="btn" onclick="startQuiz()">시험 시작하기</button>
+        <button class="btn" onclick="startQuiz()">응시하기</button>
     </div>
 
-    <!-- 2. 문제 풀이 화면 -->
     <div id="quiz-screen" class="hidden">
-        <div id="questions-container" class="card">
-            <!-- 자바스크립트로 문제들이 여기에 생성됩니다 -->
-        </div>
+        <div id="questions-container" class="card"></div>
         <div class="action-bar">
-            <button class="btn" onclick="submitQuiz()">제출 및 채점하기</button>
+            <button class="btn" onclick="submitQuiz()">제출 및 채점</button>
         </div>
     </div>
 
-    <!-- 3. 결과 화면 -->
     <div id="result-screen" class="hidden">
         <div class="score-board">
             <h2><span id="final-score">0</span>점</h2>
             <p>총 <span id="total-q-count">0</span>문제 중 <span id="correct-q-count">0</span>문제를 맞췄습니다.</p>
         </div>
-        <div id="review-container" class="card">
-            <!-- 자바스크립트로 오답 노트가 여기에 생성됩니다 -->
-        </div>
+        <div id="review-container" class="card"></div>
         <div class="action-bar">
-            <button class="btn btn-outline" onclick="resetQuiz()">처음으로 돌아가기</button>
+            <button class="btn btn-outline" onclick="resetQuiz()">다시 풀기</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 100개의 핵심 데이터 (질문과 정답으로 분리)
     const rawData = [
         { q: "황동의 합금 조성은?", a: "구리+아연" },
         { q: "제1각법과 제3각법에 도면의 위치가 일치하는 것은?", a: "정면도와 배면도" },
@@ -378,7 +378,6 @@
     let currentQuestions = [];
     let userAnswers = {};
 
-    // 유틸리티: 배열 셔플 (Fisher-Yates)
     function shuffleArray(array) {
         const arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -388,94 +387,92 @@
         return arr;
     }
 
-    // 오답 보기 3개 추출기
     function getDistractors(correctAnswer) {
-        // 정답이 아닌 것들만 모아서 셔플
         const wrongAnswers = rawData.map(d => d.a).filter(a => a !== correctAnswer);
         return shuffleArray(wrongAnswers).slice(0, 3);
     }
 
-    // 라디오 버튼 선택 시 스타일 변경 이벤트
+    function normalizeText(text) {
+        if (!text) return "";
+        return text.toString().replace(/\s+/g, '').toLowerCase();
+    }
+
     function handleOptionSelect(qIndex, optIndex) {
         userAnswers[qIndex] = optIndex;
-        // 같은 문제의 모든 라디오 버튼 래퍼에서 selected 클래스 제거
-        document.querySelectorAll(`.options-list[data-qindex="${qIndex}"] .option-item`).forEach(el => {
-            el.classList.remove('selected');
-        });
-        // 선택된 항목에만 selected 클래스 추가
+        document.querySelectorAll(`.options-list[data-qindex="${qIndex}"] .option-item`).forEach(el => el.classList.remove('selected'));
         document.getElementById(`opt-wrapper-${qIndex}-${optIndex}`).classList.add('selected');
     }
 
-    // 시험 시작
+    function handleTextInput(qIndex, value) {
+        userAnswers[qIndex] = value;
+    }
+
     function startQuiz() {
         const inputNum = parseInt(document.getElementById('num-questions').value);
-        let num = isNaN(inputNum) ? 10 : inputNum;
-        if(num < 1) num = 1;
-        if(num > 100) num = 100;
+        let num = isNaN(inputNum) ? 10 : Math.min(Math.max(inputNum, 1), 100);
 
-        // 1. 문제 셔플 후 N개 뽑기
         const shuffledData = shuffleArray(rawData);
         const selectedData = shuffledData.slice(0, num);
         
         currentQuestions = [];
         userAnswers = {};
 
-        // 2. 객관식 문항 생성
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
 
         selectedData.forEach((item, index) => {
-            // 정답과 오답 합치기
-            let options = [item.a, ...getDistractors(item.a)];
-            // 보기 셔플 (원래 정답의 위치 기록)
-            options = shuffleArray(options);
-            const correctIndex = options.indexOf(item.a);
-
-            currentQuestions.push({
-                question: item.q,
-                options: options,
-                correctIndex: correctIndex
-            });
-
-            // HTML 생성
-            let optionsHtml = '';
-            options.forEach((opt, oIndex) => {
-                optionsHtml += `
-                    <li class="option-item" id="opt-wrapper-${index}-${oIndex}" onclick="document.getElementById('q${index}_o${oIndex}').click()">
-                        <input type="radio" name="q${index}" id="q${index}_o${oIndex}" value="${oIndex}" onchange="handleOptionSelect(${index}, ${oIndex})">
-                        <label for="q${index}_o${oIndex}">${opt}</label>
-                    </li>
-                `;
-            });
+            const isSAQ = Math.random() < 0.3; // 약 30% 확률로 주관식 배치
 
             const qBlock = document.createElement('div');
             qBlock.className = 'question-block';
-            qBlock.innerHTML = `
+
+            let innerHTML = `
                 <div class="question-title">
                     <span class="q-number">Q${index + 1}.</span> 
-                    <span>${item.question}</span>
+                    <span>${item.q}</span>
+                    <span class="q-type">${isSAQ ? '단답형' : '객관식'}</span>
                 </div>
-                <ul class="options-list" data-qindex="${index}">
-                    ${optionsHtml}
-                </ul>
             `;
+
+            if (isSAQ) {
+                currentQuestions.push({ type: 'saq', question: item.q, answer: item.a });
+                innerHTML += `
+                    <div class="saq-input-wrap">
+                        <input type="text" class="saq-input" placeholder="정답을 입력하세요" oninput="handleTextInput(${index}, this.value)">
+                    </div>
+                `;
+            } else {
+                let options = [item.a, ...getDistractors(item.a)];
+                options = shuffleArray(options); // 보기 위치 섞기 (매번 호출 시 다르게 배치됨)
+                const correctIndex = options.indexOf(item.a);
+                
+                currentQuestions.push({ type: 'mcq', question: item.q, options: options, correctIndex: correctIndex, answer: item.a });
+
+                let optionsHtml = '';
+                options.forEach((opt, oIndex) => {
+                    optionsHtml += `
+                        <li class="option-item" id="opt-wrapper-${index}-${oIndex}" onclick="document.getElementById('q${index}_o${oIndex}').click()">
+                            <input type="radio" name="q${index}" id="q${index}_o${oIndex}" value="${oIndex}" onchange="handleOptionSelect(${index}, ${oIndex})">
+                            <label for="q${index}_o${oIndex}">${opt}</label>
+                        </li>
+                    `;
+                });
+                innerHTML += `<ul class="options-list" data-qindex="${index}">${optionsHtml}</ul>`;
+            }
+
+            qBlock.innerHTML = innerHTML;
             container.appendChild(qBlock);
         });
 
-        // 화면 전환
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
         window.scrollTo(0, 0);
     }
 
-    // 시험 제출 및 채점
     function submitQuiz() {
-        // 모든 문제를 풀었는지 확인
         if (Object.keys(userAnswers).length < currentQuestions.length) {
-            if (!confirm('아직 풀지 않은 문제가 있습니다. 그래도 제출하시겠습니까?')) {
-                return;
-            }
+            if (!confirm('입력하지 않은 문항이 있습니다. 제출하시겠습니까?')) return;
         }
 
         let correctCount = 0;
@@ -483,64 +480,69 @@
         reviewContainer.innerHTML = '';
 
         currentQuestions.forEach((qObj, index) => {
-            const userAnswerIndex = userAnswers[index];
-            const isCorrect = userAnswerIndex === qObj.correctIndex;
-            
-            if (isCorrect) correctCount++;
-
-            // 오답 노트용 HTML 생성
-            let optionsHtml = '';
-            qObj.options.forEach((opt, oIndex) => {
-                let statusClass = '';
-                // 정답인 보기는 무조건 녹색 하이라이트
-                if (oIndex === qObj.correctIndex) {
-                    statusClass = 'correct-answer';
-                } 
-                // 내가 선택했는데 오답인 경우 붉은색 하이라이트
-                else if (oIndex === userAnswerIndex && !isCorrect) {
-                    statusClass = 'wrong-answer';
-                }
-
-                optionsHtml += `
-                    <li class="option-item ${statusClass}" style="cursor:default;">
-                        <input type="radio" disabled ${oIndex === userAnswerIndex ? 'checked' : ''}>
-                        <label>${opt}</label>
-                    </li>
-                `;
-            });
-
-            const feedbackHtml = isCorrect 
-                ? `<div class="feedback-msg feedback-correct">⭕ 정답입니다!</div>`
-                : `<div class="feedback-msg feedback-wrong">❌ 틀렸습니다. (정답: ${qObj.options[qObj.correctIndex]})</div>`;
+            const userAnswer = userAnswers[index];
+            let isCorrect = false;
 
             const rBlock = document.createElement('div');
             rBlock.className = 'question-block';
-            rBlock.innerHTML = `
+            
+            let reviewHtml = `
                 <div class="question-title">
-                    <span class="q-number" style="color: ${isCorrect ? '#16a34a' : '#dc2626'}">Q${index + 1}.</span> 
+                    <span class="q-number">Q${index + 1}.</span> 
                     <span>${qObj.question}</span>
                 </div>
-                <ul class="options-list">
-                    ${optionsHtml}
-                </ul>
-                ${feedbackHtml}
             `;
+
+            if (qObj.type === 'mcq') {
+                isCorrect = userAnswer === qObj.correctIndex;
+                if (isCorrect) correctCount++;
+
+                let optionsHtml = '';
+                qObj.options.forEach((opt, oIndex) => {
+                    let statusClass = oIndex === qObj.correctIndex ? 'correct-answer' : (oIndex === userAnswer ? 'wrong-answer' : '');
+                    optionsHtml += `
+                        <li class="option-item ${statusClass}" style="cursor:default;">
+                            <input type="radio" disabled ${oIndex === userAnswer ? 'checked' : ''}>
+                            <label>${opt}</label>
+                        </li>
+                    `;
+                });
+                reviewHtml += `<ul class="options-list">${optionsHtml}</ul>`;
+            } else {
+                // 단답형 보정 로직: 띄어쓰기 제거 및 소문자화 후 비교
+                const normalizedUser = normalizeText(userAnswer);
+                const normalizedAns = normalizeText(qObj.answer);
+                
+                isCorrect = normalizedUser !== "" && normalizedUser === normalizedAns;
+                if (isCorrect) correctCount++;
+
+                const statusClass = isCorrect ? 'saq-correct' : 'saq-wrong';
+                reviewHtml += `
+                    <div class="saq-result ${statusClass}">
+                        <div>작성한 답: <strong>${userAnswer || '(미입력)'}</strong></div>
+                        ${!isCorrect ? `<div style="margin-top:5px;">올바른 정답: <strong>${qObj.answer}</strong></div>` : ''}
+                    </div>
+                `;
+            }
+
+            reviewHtml += `<div class="feedback-msg ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}">
+                ${isCorrect ? '정답입니다.' : '오답입니다.'}
+            </div>`;
+
+            rBlock.innerHTML = reviewHtml;
             reviewContainer.appendChild(rBlock);
         });
 
-        // 점수 계산 (100점 만점 기준 환산)
         const score = Math.round((correctCount / currentQuestions.length) * 100);
         document.getElementById('final-score').innerText = score;
         document.getElementById('total-q-count').innerText = currentQuestions.length;
         document.getElementById('correct-q-count').innerText = correctCount;
 
-        // 화면 전환
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
         window.scrollTo(0, 0);
     }
 
-    // 처음으로 돌아가기
     function resetQuiz() {
         document.getElementById('result-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.add('hidden');
