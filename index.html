@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>열처리기능사 필기 CBT 기출문제 모의고사</title>
+    <style>
+        /* 기본 스타일 및 폰트 설정 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --correct-bg: #dcfce7;
+            --correct-border: #22c55e;
+            --wrong-bg: #fee2e2;
+            --wrong-border: #ef4444;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* 헤더 부분 */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* 카드 UI 공통 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        /* 설정 화면 */
+        #setup-screen {
+            text-align: center;
+        }
+        .input-group {
+            margin: 30px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .input-group input {
+            width: 100px;
+            padding: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: var(--primary);
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+            max-width: 300px;
+        }
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-outline:hover {
+            background-color: #eff6ff;
+        }
+
+        /* 퀴즈 화면 */
+        .question-block {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 30px;
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .question-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .q-number {
+            color: var(--primary);
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-item:hover {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+        .option-item input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .option-item label {
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.05rem;
+        }
+        .option-item.selected {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+        }
+
+        /* 결과 화면 특징 */
+        .score-board {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .score-board h2 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        /* 채점 결과 피드백 스타일 */
+        .option-item.correct-answer {
+            background-color: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: #166534;
+            font-weight: 600;
+        }
+        .option-item.wrong-answer {
+            background-color: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: #991b1b;
+        }
+        .feedback-msg {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .feedback-correct {
+            background-color: var(--correct-bg);
+            color: var(--correct-border);
+        }
+        .feedback-wrong {
+            background-color: var(--wrong-bg);
+            color: var(--wrong-border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 하단 고정 버튼 영역 */
+        .action-bar {
+            position: sticky;
+            bottom: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🔥 열처리기능사 실전 CBT 모의고사</h1>
+        <p>핵심 요약 100제 중 원하는 만큼 랜덤으로 출제됩니다.</p>
+    </header>
+
+    <!-- 1. 설정 화면 -->
+    <div id="setup-screen" class="card">
+        <h2>몇 문제를 풀어볼까요?</h2>
+        <div class="input-group">
+            <label for="num-questions">출제 문항 수 (최대 100문제)</label>
+            <input type="number" id="num-questions" value="10" min="1" max="100">
+        </div>
+        <button class="btn" onclick="startQuiz()">시험 시작하기</button>
+    </div>
+
+    <!-- 2. 문제 풀이 화면 -->
+    <div id="quiz-screen" class="hidden">
+        <div id="questions-container" class="card">
+            <!-- 자바스크립트로 문제들이 여기에 생성됩니다 -->
+        </div>
+        <div class="action-bar">
+            <button class="btn" onclick="submitQuiz()">제출 및 채점하기</button>
+        </div>
+    </div>
+
+    <!-- 3. 결과 화면 -->
+    <div id="result-screen" class="hidden">
+        <div class="score-board">
+            <h2><span id="final-score">0</span>점</h2>
+            <p>총 <span id="total-q-count">0</span>문제 중 <span id="correct-q-count">0</span>문제를 맞췄습니다.</p>
+        </div>
+        <div id="review-container" class="card">
+            <!-- 자바스크립트로 오답 노트가 여기에 생성됩니다 -->
+        </div>
+        <div class="action-bar">
+            <button class="btn btn-outline" onclick="resetQuiz()">처음으로 돌아가기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 100개의 핵심 데이터 (질문과 정답으로 분리)
+    const rawData = [
+        { q: "황동의 합금 조성은?", a: "구리+아연" },
+        { q: "제1각법과 제3각법에 도면의 위치가 일치하는 것은?", a: "정면도와 배면도" },
+        { q: "상경질 자성 재료의 대표적인 예는?", a: "Nd(네오디뮴) 자석" },
+        { q: "침탄 담금질에서 경도가 부족한 원인은?", a: "담금질 냉각 속도가 느릴 때" },
+        { q: "오스테나이트화 온도에서 수랭 담금질한 후 탄소강의 조직은?", a: "마텐자이트" },
+        { q: "미터 보통 나사를 나타내는 기호는?", a: "M" },
+        { q: "베어링용 합금이 갖추어야 할 조건은?", a: "마찰계수가 작아야 한다" },
+        { q: "강자성을 잃고 상자성으로 변화하는 현상은?", a: "자기 변태" },
+        { q: "내화재의 구비 조건 중 올바른 것은?", a: "열전도도가 작아야 한다" },
+        { q: "열처리 과정에서 나타나는 조직 중에서 부피의 변화가 가장 큰 것은?", a: "마텐자이트" },
+        { q: "화염경화 처리의 특징은?", a: "국부적인 담금질이 가능하다" },
+        { q: "강재의 탈탄 여부를 검사하는 시험은?", a: "강박 시험" },
+        { q: "상온에서 구리의 결정 격자 형태는?", a: "FCC(면심입방격자)" },
+        { q: "침탄법에서 2차 담금질을 하는 목적은?", a: "표면 침탄층의 경화" },
+        { q: "화학적 열처리 방법에 속하는 것들은?", a: "침탄법, 질화법, 금속 침투법" },
+        { q: "변태점의 측정 방법에는 어떤 것들이 있는가?", a: "열분석법, 열팽창법, 전기 저항법" },
+        { q: "주강과 주철 중 수축률이 더 큰 것은?", a: "주강" },
+        { q: "열처리 가열 노(로)로 사용되는 것은?", a: "전기로, 가스로, 분위기로 등" },
+        { q: "강의 표준 조직을 얻기 위한 열처리 방법은?", a: "노멀라이징(불림)" },
+        { q: "순철의 자기 변태점 온도는?", a: "768℃" },
+        { q: "나사의 머리부를 고리 모양으로 만들어 체인 또는 훅 등을 걸 때 사용하는 볼트는?", a: "아이 볼트" },
+        { q: "원자로용 1차 금속과 고융점 구조 재료는?", a: "우라늄, 토륨" },
+        { q: "열전대의 구비 조건으로 옳은 것은?", a: "히스테리시스의 오차가 없어야 한다" },
+        { q: "탄소강의 조직 중 층상인 조직은?", a: "펄라이트" },
+        { q: "열처리 중 냉각 속도가 가장 늦은 것은?", a: "풀림" },
+        { q: "소량 다품종 부품의 열처리에 적합한 열처리법은?", a: "염욕 열처리" },
+        { q: "강의 뜨임 처리 중 시험편이 300℃일 때 나타내는 뜨임색은?", a: "청색" },
+        { q: "공석강의 공석 변태에 의해 나타나는 층상의 조직은?", a: "펄라이트" },
+        { q: "고속도강을 담금질할 때 사용하는 열전쌍은?", a: "백금-백금로듐(PR) 열전쌍" },
+        { q: "저탄소 합금 마텐자이트를 시효에 의하여 경화시키는 강은?", a: "마레이징강" },
+        { q: "고체 침탄 촉진제로 주로 사용되는 것은?", a: "탄산 바륨" },
+        { q: "소형 부품의 연속 가열이나 침탄 처리에 좋은 전기로는?", a: "회전 레토르트로" },
+        { q: "0.8% 탄소강이 공석 변태하여 생성되는 조직은?", a: "펄라이트" },
+        { q: "담금질 경화 후 인성을 저하시키지 않는 풀림법은?", a: "구상화 풀림" },
+        { q: "열전대의 보호를 위해 사용되는 보호관의 종류는?", a: "석영관, 알루미나관, 스테인리스관" },
+        { q: "고주파 열처리에서 가열 코일의 재질로 가장 좋은 것은?", a: "구리" },
+        { q: "가장 낮은 온도를 측정할 수 있는 열전쌍 온도계는?", a: "구리-콘스탄탄" },
+        { q: "두 종류의 금속선 양단을 접합하고 온도차를 부여하여 기전력을 이용한 온도계는?", a: "열전쌍 온도계" },
+        { q: "고주파 경화 시 발생하기 쉬운 결함은?", a: "담금질 균열" },
+        { q: "탄소강을 담금질 했을 때 생성되는 조직 중 가장 단단한 것은?", a: "마텐자이트" },
+        { q: "열전쌍 온도계가 이용하는 물리적 효과는?", a: "제베크 효과(Seebeck effect)" },
+        { q: "열처리용 트레이, 고리, 집게 등의 재료에 필요한 조건은?", a: "열피로 저항성이 커야 한다" },
+        { q: "고체 침탄의 침탄 촉진제로 사용하는 화합물은?", a: "탄산 바륨" },
+        { q: "분위기 가스 중에서 산화성인 가스는?", a: "이산화탄소 가스" },
+        { q: "강의 뜨임색 중 가장 높은 온도에서 나타나는 색은?", a: "강청색" },
+        { q: "비정질 합금의 제조법 중 액체 급냉법에 속하는 것은?", a: "단롤법, 원심법, 스프레이법" },
+        { q: "변형을 극도로 주의해야 하는 부분을 금형으로 누른 상태에서 실시하는 담금질은?", a: "프레스 담금질" },
+        { q: "연강의 탄소 함유량은 약 몇 %인가?", a: "0.14%" },
+        { q: "주철 중에 나타나는 탄소량의 주요 형태는?", a: "흑연 + 화합 탄소" },
+        { q: "백금의 결정 격자 형태는?", a: "면심 입방 격자(FCC)" },
+        { q: "표면은 내마모성이 높고 중심부는 내충격성이 큰 이중조직을 가지게 하는 열처리법은?", a: "표면 경화" },
+        { q: "가스 침탄로의 구성 장치에 포함되는 것은?", a: "온도 조절기, 유냉 장치, 가스 변성로" },
+        { q: "스프링 강의 열처리 목적은?", a: "높은 탄성, 적당한 인성, 높은 내피로성 확보" },
+        { q: "니켈과 몰리브덴을 함유한 구상 흑연 주철을 오스템퍼링한 기지 조직은?", a: "베이나이트" },
+        { q: "도면에서 축척(축소하여 그림)에 해당하는 척도는?", a: "1/2" },
+        { q: "열처리용 치공구 재료가 갖추어야 할 조건은?", a: "변형 저항성이 우수해야 한다" },
+        { q: "강재 표면 탈탄의 원인이 되는 기체는?", a: "산소, 수증기, 이산화탄소 등" },
+        { q: "Hz(헤르츠)는 어떤 물리량의 단위인가?", a: "주파수의 단위" },
+        { q: "잔류 오스테나이트를 마텐자이트화 하는 처리는?", a: "심랭 처리" },
+        { q: "강의 열처리된 조직 중 가장 높은 경도를 갖는 것은?", a: "시멘타이트" },
+        { q: "구조용 탄소강을 담금질한 후에 뜨임하여 사용하는 주된 이유는?", a: "인성을 증가시키기 위해서" },
+        { q: "열처리로로 사용되고 있는 산성 내화재는?", a: "규산" },
+        { q: "높은 온도에서 증발에 의해 황동의 표면으로부터 아연이 탈출되는 현상은?", a: "고온 탈아연 현상" },
+        { q: "금속의 격자 결함에 해당하는 것은?", a: "전위, 공공, 적층 결함" },
+        { q: "오스템퍼링 열처리를 하게 되면 얻어지는 조직은?", a: "베이나이트" },
+        { q: "제도 도면에서 미터 나사를 나타내는 기호는?", a: "M" },
+        { q: "가장 고온에서 실시하는 풀림 방법은?", a: "확산 풀림" },
+        { q: "분위기 열처리로의 종류에 해당하는 것은?", a: "진공로, 이온 질화로, 불활성 가스로" },
+        { q: "화학 조성을 변화시키지 않고 표면을 경화시키는 물리적 표면 경화법은?", a: "쇼트 피닝" },
+        { q: "하중의 크기 및 방향이 주기적으로 변화하는 하중(양진 하중)은?", a: "교번 하중" },
+        { q: "일반적인 합성 수지의 기계적 단점은?", a: "충격에 약하다" },
+        { q: "강을 항온 변태시켰을 때 마텐자이트와 트루스타이트의 중간 조직으로 나타나는 것은?", a: "베이나이트" },
+        { q: "탄소강의 열처리에서 담금질 최고 경도와 직접적 관련이 있는 것은?", a: "탄소 함유량" },
+        { q: "물이나 기름 담금질 시 균열이나 변형이 생기기 쉬운 강종에 적합한 열처리 방법은?", a: "마르퀜칭" },
+        { q: "괴상 흑연을 가진 주철의 명칭은?", a: "가단 주철" },
+        { q: "마텐자이트와 베이나이트의 혼합 조직을 얻을 수 있는 항온 열처리는?", a: "마르템퍼링" },
+        { q: "담금질 냉각제로서 갖추어야 할 구비 조건 중 하나는?", a: "비등점이 높아야 한다" },
+        { q: "불스아이(Bull's eye) 조직이 나타나는 주철은?", a: "구상 흑연 주철" },
+        { q: "방진 마스크 선정 시 주의해야 할 기준은?", a: "배기 저항이 너무 높으면 안 된다" },
+        { q: "불림(노멀라이징) 처리한 재료의 냉각 방식은?", a: "공랭(공기 냉각)" },
+        { q: "담금질 처리된 제품을 망치 등으로 두드려 소리를 듣는 결함 검사법은?", a: "타진법" },
+        { q: "재료가 지니고 있는 질긴 성질을 뜻하는 용어는?", a: "인성" },
+        { q: "물체의 보이는 모양을 굵은 실선으로 나타내는 선은?", a: "외형선" },
+        { q: "탄소강에서 헤어크랙(백점) 발생에 가장 큰 영향을 주는 원소는?", a: "수소" },
+        { q: "기어의 모듈(Module)을 구하는 공식은?", a: "피치원의 지름 ÷ 잇수" },
+        { q: "주철의 유동성을 해치는 대표적인 합금 원소는?", a: "황" },
+        { q: "열처리할 때 적용하는 냉각 방식의 종류는?", a: "연속 냉각, 2단 냉각, 항온 냉각" },
+        { q: "재료의 굵기나 두께에 따라 담금질 효과가 다르게 나타나는 현상은?", a: "질량 효과" },
+        { q: "실물의 크기와 같은 크기로 1:1로 표현하는 척도는?", a: "현척" },
+        { q: "열처리용 치구(Jig)가 갖추어야 할 일반적인 조건은?", a: "범용성이 있어야 한다" },
+        { q: "탄화철(시멘타이트, Fe3C)의 금속 간 화합물에 있어 탄소의 원자비는?", a: "25%" },
+        { q: "침탄과 동시에 질화가 진행되는 장점을 가지는 침탄법은?", a: "액체 침탄(청화법)" },
+        { q: "질화에 의한 표면 경화 시 주로 사용되는 가스는?", a: "암모니아 가스" },
+        { q: "탄소강에서 청열 취성을 일으키는 온도의 범위는?", a: "200~300℃" },
+        { q: "담금질 균열을 방지하기 위한 설계적 대책은?", a: "날카로운 모서리 부분에 라운딩 처리" },
+        { q: "가스로의 안전장치 종류에는 어떤 것들이 있는가?", a: "압력 스위치, 연소 감시 장치, 상한·하한 온도계 등" },
+        { q: "질화 경도의 향상에 가장 효과적인 합금 원소는?", a: "크롬(Cr)" },
+        { q: "노멀라이징 냉각 시 적열 상태(화색)가 없어지는 온도는 대략 얼마인가?", a: "550℃" },
+        { q: "내식용 알루미늄 합금의 종류는?", a: "알민, 알클래드(Alclad), 하이드로날륨" },
+        { q: "공석강을 담금질한 다음 300~400℃로 뜨임할 때 나타나는 조직은?", a: "트루스타이트" }
+    ];
+
+    let currentQuestions = [];
+    let userAnswers = {};
+
+    // 유틸리티: 배열 셔플 (Fisher-Yates)
+    function shuffleArray(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // 오답 보기 3개 추출기
+    function getDistractors(correctAnswer) {
+        // 정답이 아닌 것들만 모아서 셔플
+        const wrongAnswers = rawData.map(d => d.a).filter(a => a !== correctAnswer);
+        return shuffleArray(wrongAnswers).slice(0, 3);
+    }
+
+    // 라디오 버튼 선택 시 스타일 변경 이벤트
+    function handleOptionSelect(qIndex, optIndex) {
+        userAnswers[qIndex] = optIndex;
+        // 같은 문제의 모든 라디오 버튼 래퍼에서 selected 클래스 제거
+        document.querySelectorAll(`.options-list[data-qindex="${qIndex}"] .option-item`).forEach(el => {
+            el.classList.remove('selected');
+        });
+        // 선택된 항목에만 selected 클래스 추가
+        document.getElementById(`opt-wrapper-${qIndex}-${optIndex}`).classList.add('selected');
+    }
+
+    // 시험 시작
+    function startQuiz() {
+        const inputNum = parseInt(document.getElementById('num-questions').value);
+        let num = isNaN(inputNum) ? 10 : inputNum;
+        if(num < 1) num = 1;
+        if(num > 100) num = 100;
+
+        // 1. 문제 셔플 후 N개 뽑기
+        const shuffledData = shuffleArray(rawData);
+        const selectedData = shuffledData.slice(0, num);
+        
+        currentQuestions = [];
+        userAnswers = {};
+
+        // 2. 객관식 문항 생성
+        const container = document.getElementById('questions-container');
+        container.innerHTML = '';
+
+        selectedData.forEach((item, index) => {
+            // 정답과 오답 합치기
+            let options = [item.a, ...getDistractors(item.a)];
+            // 보기 셔플 (원래 정답의 위치 기록)
+            options = shuffleArray(options);
+            const correctIndex = options.indexOf(item.a);
+
+            currentQuestions.push({
+                question: item.q,
+                options: options,
+                correctIndex: correctIndex
+            });
+
+            // HTML 생성
+            let optionsHtml = '';
+            options.forEach((opt, oIndex) => {
+                optionsHtml += `
+                    <li class="option-item" id="opt-wrapper-${index}-${oIndex}" onclick="document.getElementById('q${index}_o${oIndex}').click()">
+                        <input type="radio" name="q${index}" id="q${index}_o${oIndex}" value="${oIndex}" onchange="handleOptionSelect(${index}, ${oIndex})">
+                        <label for="q${index}_o${oIndex}">${opt}</label>
+                    </li>
+                `;
+            });
+
+            const qBlock = document.createElement('div');
+            qBlock.className = 'question-block';
+            qBlock.innerHTML = `
+                <div class="question-title">
+                    <span class="q-number">Q${index + 1}.</span> 
+                    <span>${item.question}</span>
+                </div>
+                <ul class="options-list" data-qindex="${index}">
+                    ${optionsHtml}
+                </ul>
+            `;
+            container.appendChild(qBlock);
+        });
+
+        // 화면 전환
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    // 시험 제출 및 채점
+    function submitQuiz() {
+        // 모든 문제를 풀었는지 확인
+        if (Object.keys(userAnswers).length < currentQuestions.length) {
+            if (!confirm('아직 풀지 않은 문제가 있습니다. 그래도 제출하시겠습니까?')) {
+                return;
+            }
+        }
+
+        let correctCount = 0;
+        const reviewContainer = document.getElementById('review-container');
+        reviewContainer.innerHTML = '';
+
+        currentQuestions.forEach((qObj, index) => {
+            const userAnswerIndex = userAnswers[index];
+            const isCorrect = userAnswerIndex === qObj.correctIndex;
+            
+            if (isCorrect) correctCount++;
+
+            // 오답 노트용 HTML 생성
+            let optionsHtml = '';
+            qObj.options.forEach((opt, oIndex) => {
+                let statusClass = '';
+                // 정답인 보기는 무조건 녹색 하이라이트
+                if (oIndex === qObj.correctIndex) {
+                    statusClass = 'correct-answer';
+                } 
+                // 내가 선택했는데 오답인 경우 붉은색 하이라이트
+                else if (oIndex === userAnswerIndex && !isCorrect) {
+                    statusClass = 'wrong-answer';
+                }
+
+                optionsHtml += `
+                    <li class="option-item ${statusClass}" style="cursor:default;">
+                        <input type="radio" disabled ${oIndex === userAnswerIndex ? 'checked' : ''}>
+                        <label>${opt}</label>
+                    </li>
+                `;
+            });
+
+            const feedbackHtml = isCorrect 
+                ? `<div class="feedback-msg feedback-correct">⭕ 정답입니다!</div>`
+                : `<div class="feedback-msg feedback-wrong">❌ 틀렸습니다. (정답: ${qObj.options[qObj.correctIndex]})</div>`;
+
+            const rBlock = document.createElement('div');
+            rBlock.className = 'question-block';
+            rBlock.innerHTML = `
+                <div class="question-title">
+                    <span class="q-number" style="color: ${isCorrect ? '#16a34a' : '#dc2626'}">Q${index + 1}.</span> 
+                    <span>${qObj.question}</span>
+                </div>
+                <ul class="options-list">
+                    ${optionsHtml}
+                </ul>
+                ${feedbackHtml}
+            `;
+            reviewContainer.appendChild(rBlock);
+        });
+
+        // 점수 계산 (100점 만점 기준 환산)
+        const score = Math.round((correctCount / currentQuestions.length) * 100);
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('total-q-count').innerText = currentQuestions.length;
+        document.getElementById('correct-q-count').innerText = correctCount;
+
+        // 화면 전환
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    // 처음으로 돌아가기
+    function resetQuiz() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
