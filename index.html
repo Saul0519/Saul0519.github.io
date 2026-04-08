@@ -3,197 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>열처리기능사 실전 CBT</title>
+    <title>열처리기능사 개념 이론 CBT</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
+
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --border: #cbd5e1;
-            --correct-bg: #f0fdf4;
-            --correct-border: #22c55e;
-            --wrong-bg: #fef2f2;
-            --wrong-border: #ef4444;
+            --toss-blue: #0050FF;
+            --toss-gray-50: #F9FAFB;
+            --toss-gray-100: #F2F4F6;
+            --toss-gray-200: #E5E8EB;
+            --toss-gray-600: #4E5968;
+            --toss-gray-900: #191F28;
+            --white: #FFFFFF;
+            --red: #F04452;
+            --green: #31C164;
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 800px; width: 100%; }
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { font-size: 1.5rem; margin-bottom: 5px; }
-        .card { background: var(--card-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--border); margin-bottom: 20px; }
-        #setup-screen { text-align: center; }
-        .input-group { margin: 30px 0; }
-        .input-group input { width: 120px; padding: 10px; font-size: 1.1rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; }
-        .btn { background-color: var(--primary); color: white; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 4px; cursor: pointer; width: 100%; max-width: 250px; transition: 0.2s; }
-        .btn:hover { background-color: var(--primary-hover); }
-        .btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
-        .question-block { margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 30px; }
-        .question-title { font-size: 1.1rem; font-weight: 500; margin-bottom: 15px; display: flex; gap: 8px; }
-        .q-type { font-size: 0.8rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569; }
-        .options-list { list-style: none; padding: 0; }
-        .option-item { display: flex; align-items: center; padding: 10px 15px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
-        .option-item.selected { border-color: var(--primary); background-color: #f0fdf4; }
-        .saq-input { width: 100%; max-width: 400px; padding: 12px; font-size: 1rem; border: 1px solid var(--border); border-radius: 4px; outline: none; }
-        .score-board { text-align: center; padding: 30px 20px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 30px; }
-        .option-item.correct-answer { background-color: var(--correct-bg); border-color: var(--correct-border); }
-        .option-item.wrong-answer { background-color: var(--wrong-bg); border-color: var(--wrong-border); }
-        .saq-result { padding: 15px; border-radius: 4px; margin-top: 10px; }
-        .saq-correct { background-color: var(--correct-bg); border: 1px solid var(--correct-border); }
-        .saq-wrong { background-color: var(--wrong-bg); border: 1px solid var(--wrong-border); }
-        .feedback-msg { font-weight: 600; margin-top: 10px; }
-        .feedback-correct { color: #16a34a; }
-        .feedback-wrong { color: #dc2626; }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--toss-gray-50);
+            color: var(--toss-gray-900);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 48px;
+            text-align: left;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            font-size: 15px;
+            color: var(--toss-gray-600);
+            margin: 0;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .label {
+            display: block;
+            font-size: 14px;
+            color: var(--toss-gray-600);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            border: 1px solid var(--toss-gray-200);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--toss-blue);
+        }
+
+        .btn {
+            width: 100%;
+            background-color: var(--toss-blue);
+            color: var(--white);
+            border: none;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-outline {
+            background-color: var(--toss-gray-100);
+            color: var(--toss-gray-600);
+            margin-top: 12px;
+        }
+
+        .question-block {
+            margin-bottom: 40px;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            word-break: keep-all;
+        }
+
+        .q-type {
+            font-size: 12px;
+            color: var(--toss-blue);
+            background: rgba(0, 80, 255, 0.08);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--toss-gray-200);
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            color: var(--toss-gray-600);
+        }
+
+        .option-item:hover {
+            background-color: var(--toss-gray-50);
+        }
+
+        .option-item.selected {
+            border-color: var(--toss-blue);
+            background-color: rgba(0, 80, 255, 0.02);
+            color: var(--toss-blue);
+            font-weight: 600;
+        }
+
+        .saq-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: 1px solid var(--toss-gray-200);
+            border-radius: 14px;
+            outline: none;
+        }
+
+        /* 결과 화면 디자인 */
+        .score-board {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .score-board h2 {
+            font-size: 48px;
+            margin: 0;
+            color: var(--toss-blue);
+        }
+
+        .score-board p {
+            font-size: 17px;
+            color: var(--toss-gray-600);
+            margin-top: 8px;
+        }
+
+        .result-tag {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .correct-answer {
+            border-color: var(--green) !important;
+            color: var(--green) !important;
+            background-color: rgba(49, 193, 100, 0.05);
+        }
+
+        .wrong-answer {
+            border-color: var(--red) !important;
+            color: var(--red) !important;
+            background-color: rgba(240, 68, 82, 0.05);
+        }
+
+        .saq-result {
+            padding: 20px;
+            border-radius: 14px;
+            margin-top: 12px;
+            font-size: 15px;
+            border: 1px solid var(--toss-gray-200);
+        }
+
+        .feedback-msg {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
         .hidden { display: none !important; }
+
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .card { padding: 24px 20px; }
+        }
     </style>
 </head>
 <body>
-
 <div class="container">
     <header>
-        <h1>열처리기능사 실전 모의고사</h1>
-        <p>자동 채점 및 선택지 무작위 셔플 시스템</p>
+        <h1>열처리기능사 개념이론 모의고사</h1>
+        <p>"이거만 외워도 30개는 넘김" 100제</p>
     </header>
 
     <div id="setup-screen" class="card">
         <div class="input-group">
-            <label for="num-questions">출제 문항 수 (최대 100)</label><br>
+            <span class="label">출제 문항 수 설정 (1~100)</span>
             <input type="number" id="num-questions" value="10" min="1" max="100">
         </div>
-        <button class="btn" onclick="startQuiz()">응시하기</button>
+        <button class="btn" onclick="startQuiz()">응시 시작</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
         <div id="questions-container" class="card"></div>
-        <div style="text-align:center;">
-            <button id="submit-btn" class="btn" onclick="submitQuiz()">제출 및 채점</button>
-        </div>
+        <button class="btn" onclick="submitQuiz()">답안 제출</button>
     </div>
 
     <div id="result-screen" class="hidden">
-        <div class="score-board">
+        <div class="card score-board">
             <h2><span id="final-score">0</span>점</h2>
-            <p>총 <span id="total-q-count">0</span>문제 중 <span id="correct-q-count">0</span>문제를 맞췄습니다.</p>
+            <p>총 <span id="total-q-count">0</span>문항 중 <span id="correct-q-count">0</span>문항 정답</p>
         </div>
-        <div id="review-container" class="card"></div>
-        <button class="btn" onclick="location.reload()" style="display:block; margin: 0 auto;">다시 풀기</button>
+        <div id="review-container"></div>
+        <button class="btn" onclick="location.reload()">다시 응시</button>
     </div>
 </div>
 
 <script>
-    // [데이터 생략 - 이전과 동일한 100제 데이터]
     const rawData = [
-        { q: "황동의 합금 조성은?", a: "구리+아연" },
-        { q: "제1각법과 제3각법에 도면의 위치가 일치하는 것은?", a: "정면도와 배면도" },
-        { q: "상경질 자성 재료의 대표적인 예는?", a: "Nd(네오디뮴) 자석" },
-        { q: "침탄 담금질에서 경도가 부족한 원인은?", a: "담금질 냉각 속도가 느릴 때" },
-        { q: "오스테나이트화 온도에서 수랭 담금질한 후 탄소강의 조직은?", a: "마텐자이트" },
-        { q: "미터 보통 나사를 나타내는 기호는?", a: "M" },
-        { q: "베어링용 합금이 갖추어야 할 조건은?", a: "마찰계수가 작아야 한다" },
-        { q: "강자성을 잃고 상자성으로 변화하는 현상은?", a: "자기 변태" },
-        { q: "내화재의 구비 조건 중 올바른 것은?", a: "열전도도가 작아야 한다" },
-        { q: "열처리 과정에서 나타나는 조직 중에서 부피의 변화가 가장 큰 것은?", a: "마텐자이트" },
-        { q: "화염경화 처리의 특징은?", a: "국부적인 담금질이 가능하다" },
-        { q: "강재의 탈탄 여부를 검사하는 시험은?", a: "강박 시험" },
-        { q: "상온에서 구리의 결정 격자 형태는?", a: "FCC(면심입방격자)" },
-        { q: "침탄법에서 2차 담금질을 하는 목적은?", a: "표면 침탄층의 경화" },
-        { q: "화학적 열처리 방법에 속하는 것들은?", a: "침탄법, 질화법, 금속 침투법" },
-        { q: "변태점의 측정 방법에는 어떤 것들이 있는가?", a: "열분석법, 열팽창법, 전기 저항법" },
-        { q: "주강과 주철 중 수축률이 더 큰 것은?", a: "주강" },
-        { q: "열처리 가열 노(로)로 사용되는 것은?", a: "전기로, 가스로, 분위기로 등" },
-        { q: "강의 표준 조직을 얻기 위한 열처리 방법은?", a: "노멀라이징(불림)" },
-        { q: "순철의 자기 변태점 온도는?", a: "768℃" },
-        { q: "나사의 머리부를 고리 모양으로 만들어 체인 또는 훅 등을 걸 때 사용하는 볼트는?", a: "아이 볼트" },
-        { q: "원자로용 1차 금속과 고융점 구조 재료는?", a: "우라늄, 토륨" },
-        { q: "열전대의 구비 조건으로 옳은 것은?", a: "히스테리시스의 오차가 없어야 한다" },
-        { q: "탄소강의 조직 중 층상인 조직은?", a: "펄라이트" },
-        { q: "열처리 중 냉각 속도가 가장 늦은 것은?", a: "풀림" },
-        { q: "소량 다품종 부품의 열처리에 적합한 열처리법은?", a: "염욕 열처리" },
-        { q: "강의 뜨임 처리 중 시험편이 300℃일 때 나타내는 뜨임색은?", a: "청색" },
-        { q: "공석강의 공석 변태에 의해 나타나는 층상의 조직은?", a: "펄라이트" },
-        { q: "고속도강을 담금질할 때 사용하는 열전쌍은?", a: "백금-백금로듐(PR) 열전쌍" },
-        { q: "저탄소 합금 마텐자이트를 시효에 의하여 경화시키는 강은?", a: "마레이징강" },
-        { q: "고체 침탄 촉진제로 주로 사용되는 것은?", a: "탄산 바륨" },
-        { q: "소형 부품의 연속 가열이나 침탄 처리에 좋은 전기로는?", a: "회전 레토르트로" },
-        { q: "0.8% 탄소강이 공석 변태하여 생성되는 조직은?", a: "펄라이트" },
-        { q: "담금질 경화 후 인성을 저하시키지 않는 풀림법은?", a: "구상화 풀림" },
-        { q: "열전대의 보호를 위해 사용되는 보호관의 종류는?", a: "석영관, 알루미나관, 스테인리스관" },
-        { q: "고주파 열처리에서 가열 코일의 재질로 가장 좋은 것은?", a: "구리" },
-        { q: "가장 낮은 온도를 측정할 수 있는 열전쌍 온도계는?", a: "구리-콘스탄탄" },
-        { q: "두 종류의 금속선 양단을 접합하고 온도차를 부여하여 기전력을 이용한 온도계는?", a: "열전쌍 온도계" },
-        { q: "고주파 경화 시 발생하기 쉬운 결함은?", a: "담금질 균열" },
-        { q: "탄소강을 담금질 했을 때 생성되는 조직 중 가장 단단한 것은?", a: "마텐자이트" },
-        { q: "열전쌍 온도계가 이용하는 물리적 효과는?", a: "제베크 효과(Seebeck effect)" },
-        { q: "열처리용 트레이, 고리, 집게 등의 재료에 필요한 조건은?", a: "열피로 저항성이 커야 한다" },
-        { q: "고체 침탄의 침탄 촉진제로 사용하는 화합물은?", a: "탄산 바륨" },
-        { q: "분위기 가스 중에서 산화성인 가스는?", a: "이산화탄소 가스" },
-        { q: "강의 뜨임색 중 가장 높은 온도에서 나타나는 색은?", a: "강청색" },
-        { q: "비정질 합금의 제조법 중 액체 급냉법에 속하는 것은?", a: "단롤법, 원심법, 스프레이법" },
-        { q: "변형을 극도로 주의해야 하는 부분을 금형으로 누른 상태에서 실시하는 담금질은?", a: "프레스 담금질" },
-        { q: "연강의 탄소 함유량은 약 몇 %인가?", a: "0.14%" },
-        { q: "주철 중에 나타나는 탄소량의 주요 형태는?", a: "흑연 + 화합 탄소" },
-        { q: "백금의 결정 격자 형태는?", a: "면심 입방 격자(FCC)" },
-        { q: "표면은 내마모성이 높고 중심부는 내충격성이 큰 이중조직을 가지게 하는 열처리법은?", a: "표면 경화" },
-        { q: "가스 침탄로의 구성 장치에 포함되는 것은?", a: "온도 조절기, 유냉 장치, 가스 변성로" },
-        { q: "스프링 강의 열처리 목적은?", a: "높은 탄성, 적당한 인성, 높은 내피로성 확보" },
-        { q: "니켈과 몰리브덴을 함유한 구상 흑연 주철을 오스템퍼링한 기지 조직은?", a: "베이나이트" },
-        { q: "도면에서 축척(축소하여 그림)에 해당하는 척도는?", a: "1/2" },
-        { q: "열처리용 치공구 재료가 갖추어야 할 조건은?", a: "변형 저항성이 우수해야 한다" },
-        { q: "강재 표면 탈탄의 원인이 되는 기체는?", a: "산소, 수증기, 이산화탄소 등" },
-        { q: "Hz(헤르츠)는 어떤 물리량의 단위인가?", a: "주파수의 단위" },
-        { q: "잔류 오스테나이트를 마텐자이트화 하는 처리는?", a: "심랭 처리" },
-        { q: "강의 열처리된 조직 중 가장 높은 경도를 갖는 것은?", a: "시멘타이트" },
-        { q: "구조용 탄소강을 담금질한 후에 뜨임하여 사용하는 주된 이유는?", a: "인성을 증가시키기 위해서" },
-        { q: "열처리로로 사용되고 있는 산성 내화재는?", a: "규산" },
-        { q: "높은 온도에서 증발에 의해 황동의 표면으로부터 아연이 탈출되는 현상은?", a: "고온 탈아연 현상" },
-        { q: "금속의 격자 결함에 해당하는 것은?", a: "전위, 공공, 적층 결함" },
-        { q: "오스템퍼링 열처리를 하게 되면 얻어지는 조직은?", a: "베이나이트" },
-        { q: "제도 도면에서 미터 나사를 나타내는 기호는?", a: "M" },
-        { q: "가장 고온에서 실시하는 풀림 방법은?", a: "확산 풀림" },
-        { q: "분위기 열처리로의 종류에 해당하는 것은?", a: "진공로, 이온 질화로, 불활성 가스로" },
-        { q: "화학 조성을 변화시키지 않고 표면을 경화시키는 물리적 표면 경화법은?", a: "쇼트 피닝" },
-        { q: "하중의 크기 및 방향이 주기적으로 변화하는 하중(양진 하중)은?", a: "교번 하중" },
-        { q: "일반적인 합성 수지의 기계적 단점은?", a: "충격에 약하다" },
-        { q: "강을 항온 변태시켰을 때 마텐자이트와 트루스타이트의 중간 조직으로 나타나는 것은?", a: "베이나이트" },
-        { q: "탄소강의 열처리에서 담금질 최고 경도와 직접적 관련이 있는 것은?", a: "탄소 함유량" },
-        { q: "물이나 기름 담금질 시 균열이나 변형이 생기기 쉬운 강종에 적합한 열처리 방법은?", a: "마르퀜칭" },
-        { q: "괴상 흑연을 가진 주철의 명칭은?", a: "가단 주철" },
-        { q: "마텐자이트와 베이나이트의 혼합 조직을 얻을 수 있는 항온 열처리는?", a: "마르템퍼링" },
-        { q: "담금질 냉각제로서 갖추어야 할 구비 조건 중 하나는?", a: "비등점이 높아야 한다" },
-        { q: "불스아이(Bull's eye) 조직이 나타나는 주철은?", a: "구상 정연 주철" },
-        { q: "방진 마스크 선정 시 주의해야 할 기준은?", a: "배기 저항이 너무 높으면 안 된다" },
-        { q: "불림(노멀라이징) 처리한 재료의 냉각 방식은?", a: "공랭(공기 냉각)" },
-        { q: "담금질 처리된 제품을 망치 등으로 두드려 소리를 듣는 결함 검사법은?", a: "타진법" },
-        { q: "재료가 지니고 있는 질긴 성질을 뜻하는 용어는?", a: "인성" },
-        { q: "물체의 보이는 모양을 굵은 실선으로 나타내는 선은?", a: "외형선" },
-        { q: "탄소강에서 헤어크랙(백점) 발생에 가장 큰 영향을 주는 원소는?", a: "수소" },
-        { q: "기어의 모듈(Module)을 구하는 공식은?", a: "피치원의 지름 ÷ 잇수" },
-        { q: "주철의 유동성을 해치는 대표적인 합금 원소는?", a: "황" },
-        { q: "열처리할 때 적용하는 냉각 방식의 종류는?", a: "연속 냉각, 2단 냉각, 항온 냉각" },
-        { q: "재료의 굵기나 두께에 따라 담금질 효과가 다르게 나타나는 현상은?", a: "질량 효과" },
-        { q: "실물의 크기와 같은 크기로 1:1로 표현하는 척도는?", a: "현척" },
-        { q: "열처리용 치구(Jig)가 갖추어야 할 일반적인 조건은?", a: "범용성이 있어야 한다" },
-        { q: "탄화철(시멘타이트, Fe3C)의 금속 간 화합물에 있어 탄소의 원자비는?", a: "25%" },
-        { q: "침탄과 동시에 질화가 진행되는 장점을 가지는 침탄법은?", a: "액체 침탄(청화법)" },
-        { q: "질화에 의한 표면 경화 시 주로 사용되는 가스는?", a: "암모니아 가스" },
-        { q: "탄소강에서 청열 취성을 일으키는 온도의 범위는?", a: "200~300℃" },
-        { q: "담금질 균열을 방지하기 위한 설계적 대책은?", a: "날카로운 모서리 부분에 라운딩 처리" },
-        { q: "가스로의 안전장치 종류에는 어떤 것들이 있는가?", a: "압력 스위치, 연소 감시 장치, 상한·하한 온도계 등" },
-        { q: "질화 경도의 향상에 가장 효과적인 합금 원소는?", a: "크롬(Cr)" },
-        { q: "노멀라이징 냉각 시 적열 상태(화색)가 없어지는 온도는 대략 얼마인가?", a: "550℃" },
-        { q: "내식용 알루미늄 합금의 종류는?", a: "알민, 알클래드(Alclad), 하이드로날륨" },
-        { q: "공석강을 담금질한 다음 300~400℃로 뜨임할 때 나타나는 조직은?", a: "트루스타이트" }
+        { q: "황동의 합금 조성은?", a: "구리+아연", d: ["구리+주석", "구리+니켈", "구리+망간", "구리+규소", "아연+주석", "구리+납", "알루미늄+구리"] },
+        { q: "제1각법과 제3각법에 도면의 위치가 일치하는 것은?", a: "정면도와 배면도", d: ["정면도와 평면도", "평면도와 저면도", "좌측면도와 우측면도", "정면도와 저면도", "평면도와 측면도"] },
+        { q: "상경질 자성 재료의 대표적인 예는?", a: "Nd(네오디뮴) 자석", d: ["규소강판", "퍼멀로이", "순철", "페라이트", "알니코 자석", "센더스트", "뮤메탈"] },
+        { q: "침탄 담금질에서 경도가 부족한 원인은?", a: "담금질 냉각 속도가 느릴 때", d: ["침탄 온도가 너무 높을 때", "냉각제가 물일 때", "탄소 농도가 너무 높을 때", "템퍼링 온도가 낮을 때", "유지 시간이 길 때"] },
+        { q: "오스테나이트화 온도에서 수랭 담금질한 후 탄소강의 조직은?", a: "마텐자이트", d: ["펄라이트", "베이나이트", "소르바이트", "트루스타이트", "페라이트", "시멘타이트", "레데부라이트"] },
+        { q: "미터 보통 나사를 나타내는 기호는?", a: "M", d: ["W", "Tr", "G", "R", "S", "UNC", "PT"] },
+        { q: "베어링용 합금이 갖추어야 할 조건은?", a: "마찰계수가 작아야 한다", d: ["열전도율이 작아야 한다", "경도가 매우 낮아야 한다", "마찰계수가 커야 한다", "부식성이 있어야 한다", "융점이 낮아야 한다"] },
+        { q: "강자성을 잃고 상자성으로 변화하는 현상은?", a: "자기 변태", d: ["동소 변태", "공정 변태", "공석 변태", "포정 변태", "마텐자이트 변태", "전위", "공공"] },
+        { q: "내화재의 구비 조건 중 올바른 것은?", a: "열전도도가 작아야 한다", d: ["열팽창계수가 커야 한다", "열전도도가 커야 한다", "고온 강도가 낮아야 한다", "비중이 매우 커야 한다", "흡습성이 있어야 한다"] },
+        { q: "열처리 과정에서 나타나는 조직 중에서 부피의 변화가 가장 큰 것은?", a: "마텐자이트", d: ["오스테나이트", "트루스타이트", "소르바이트", "펄라이트", "페라이트", "시멘타이트"] },
+        { q: "화염경화 처리의 특징은?", a: "국부적인 담금질이 가능하다", d: ["표면 침탄이 빠르다", "질화층이 깊다", "심부까지 경화된다", "탈탄이 전혀 없다", "변형이 아예 없다"] },
+        { q: "강재의 탈탄 여부를 검사하는 시험은?", a: "강박 시험", d: ["설퍼 프린트", "스파크 시험", "초음파 탐상", "자기 탐상", "강구 압입", "경도 시험"] },
+        { q: "상온에서 구리의 결정 격자 형태는?", a: "FCC(면심입방격자)", d: ["BCC(체심입방격자)", "HCP(조밀육방격자)", "단사정계", "정방정계", "사방정계"] },
+        { q: "침탄법에서 2차 담금질을 하는 목적은?", a: "표면 침탄층의 경화", d: ["심부 조직의 미세화", "잔류 응력의 제거", "결정립의 성장 방지", "내식성 향상", "인성 부여"] },
+        { q: "화학적 열처리 방법에 속하는 것들은?", a: "침탄법, 질화법, 금속 침투법", d: ["풀림, 불림, 담금질", "고주파 경화, 화염 경화", "템퍼링, 노멀라이징", "오스템퍼링, 마템퍼링"] },
+        { q: "변태점의 측정 방법에는 어떤 것들이 있는가?", a: "열분석법, 열팽창법, 전기 저항법", d: ["경도법, 인장법, 굴곡법", "비중법, 색깔법, 타격법", "초음파법, 방사선법", "육안검사, 자석검사"] },
+        { q: "주강과 주철 중 수축률이 더 큰 것은?", a: "주강", d: ["주철", "두 재료가 같다", "탄소 함유량에 따라 다르다", "냉각 속도에 따라 다르다"] },
+        { q: "열처리 가열 노(로)로 사용되는 것은?", a: "전기로, 가스로, 분위기로 등", d: ["압축기, 송풍기", "냉동기, 펌프", "컨베이어, 크레인", "분쇄기, 혼합기"] },
+        { q: "강의 표준 조직을 얻기 위한 열처리 방법은?", a: "노멀라이징(불림)", d: ["어닐링(풀림)", "퀜칭(담금질)", "템퍼링(뜨임)", "심랭 처리", "질화 처리"] },
+        { q: "순철의 자기 변태점 온도는?", a: "768℃", d: ["210℃", "723℃", "910℃", "1147℃", "1394℃", "1538℃"] },
+        { q: "나사의 머리부를 고리 모양으로 만들어 체인 또는 훅 등을 걸 때 사용하는 볼트는?", a: "아이 볼트", d: ["스테이 볼트", "기초 볼트", "나비 볼트", "티 볼트", "유 볼트(U-bolt)"] },
+        { q: "원자로용 1차 금속과 고융점 구조 재료는?", a: "우라늄, 토륨", d: ["금, 은", "알루미늄, 마그네슘", "니켈, 크롬", "구리, 아연", "티타늄, 지르코늄"] },
+        { q: "열전대의 구비 조건으로 옳은 것은?", a: "히스테리시스의 오차가 없어야 한다", d: ["전기저항이 매우 커야 한다", "열전도율이 커야 한다", "기전력이 작아야 한다", "부식이 잘 되어야 한다", "값이 비싸야 한다"] },
+        { q: "탄소강의 조직 중 층상인 조직은?", a: "펄라이트", d: ["마텐자이트", "오스테나이트", "베이나이트", "페라이트", "시멘타이트", "트루스타이트"] },
+        { q: "열처리 중 냉각 속도가 가장 늦은 것은?", a: "풀림", d: ["담금질", "뜨임", "불림", "오스템퍼링", "마르퀜칭"] },
+        { q: "소량 다품종 부품의 열처리에 적합한 열처리법은?", a: "염욕 열처리", d: ["고주파 열처리", "화염 경화", "진공 열처리", "가스 침탄", "연속 가열"] },
+        { q: "강의 뜨임 처리 중 시험편이 300℃일 때 나타내는 뜨임색은?", a: "청색", d: ["담황색", "갈색", "자색", "회색", "백색", "적색"] },
+        { q: "공석강의 공석 변태에 의해 나타나는 층상의 조직은?", a: "펄라이트", d: ["마텐자이트", "오스테나이트", "베이나이트", "레데부라이트", "소르바이트"] },
+        { q: "고속도강을 담금질할 때 사용하는 열전쌍은?", a: "백금-백금로듐(PR) 열전쌍", d: ["크로멜-알루멜(CA)", "구리-콘스탄탄(CC)", "철-콘스탄탄(IC)", "백금-백금이리듐", "석영관 온도계"] },
+        { q: "저탄소 합금 마텐자이트를 시효에 의하여 경화시키는 강은?", a: "마레이징강", d: ["불锈钢", "고속도강", "스프링강", "내열강", "쾌삭강", "베어링강"] },
+        { q: "고체 침탄 촉진제로 주로 사용되는 것은?", a: "탄산 바륨", d: ["염화 나트륨", "황산 구리", "질산 칼륨", "수산화 나트륨", "이산화 망간"] },
+        { q: "소형 부품의 연속 가열이나 침탄 처리에 좋은 전기로는?", a: "회전 레토르트로", d: ["피트형 로", "벨형 로", "대차형 로", "염욕 로", "머플 로"] },
+        { q: "0.8% 탄소강이 공석 변태하여 생성되는 조직은?", a: "펄라이트", d: ["베이나이트", "트루스타이트", "소르바이트", "시멘타이트", "페라이트"] },
+        { q: "담금질 경화 후 인성을 저하시키지 않는 풀림법은?", a: "구상화 풀림", d: ["확산 풀림", "응력 제거 풀림", "완전 풀림", "연화 풀림", "중간 풀림"] },
+        { q: "열전대의 보호를 위해 사용되는 보호관의 종류는?", a: "석영관, 알루미나관, 스테인리스관", d: ["유리관, 플라스틱관", "고무관, 비닐관", "황동관, 구리관", "연관, 아연관"] },
+        { q: "고주파 열처리에서 가열 코일의 재질로 가장 좋은 것은?", a: "구리", d: ["알루미늄", "니켈", "은", "텅스텐", "강철", "마그네슘"] },
+        { q: "가장 낮은 온도를 측정할 수 있는 열전쌍 온도계는?", a: "구리-콘스탄탄", d: ["백금-백금로듐", "크로멜-알루멜", "철-콘스탄탄", "크로멜-콘스탄탄"] },
+        { q: "두 종류의 금속선 양단을 접합하고 온도차를 부여하여 기전력을 이용한 온도계는?", a: "열전쌍 온도계", d: ["광고온계", "바이메탈 온도계", "수은 온도계", "알코올 온도계", "저항 온도계"] },
+        { q: "고주파 경화 시 발생하기 쉬운 결함은?", a: "담금질 균열", d: ["표면 박리", "경도 부족", "산화 스케일", "기포 발생", "변색"] },
+        { q: "탄소강을 담금질 했을 때 생성되는 조직 중 가장 단단한 것은?", a: "마텐자이트", d: ["트루스타이트", "소르바이트", "펄라이트", "오스테나이트", "페라이트"] },
+        { q: "열전쌍 온도계가 이용하는 물리적 효과는?", a: "제베크 효과(Seebeck effect)", d: ["펠티에 효과", "톰슨 효과", "홀 효과", "줄 효과", "광전 효과"] },
+        { q: "열처리용 트레이, 고리, 집게 등의 재료에 필요한 조건은?", a: "열피로 저항성이 커야 한다", d: ["열전도율이 낮아야 한다", "경도가 매우 높아야 한다", "전성이 커야 한다", "자성이 있어야 한다"] },
+        { q: "고체 침탄의 침탄 촉진제로 사용하는 화합물은?", a: "탄산 바륨", d: ["산화 티타늄", "탄산 나트륨", "염화 칼륨", "중탄산 소다"] },
+        { q: "분위기 가스 중에서 산화성인 가스는?", a: "이산화탄소 가스", d: ["일산화탄소 가스", "수소 가스", "질소 가스", "아르곤 가스", "메탄 가스"] },
+        { q: "강의 뜨임색 중 가장 높은 온도에서 나타나는 색은?", a: "강청색", d: ["담황색", "자색", "갈색", "황색"] },
+        { q: "비정질 합금의 제조법 중 액체 급냉법에 속하는 것은?", a: "단롤법, 원심법, 스프레이법", d: ["진공 증착법", "스퍼터링법", "전해 도금법", "입자 충격법"] },
+        { q: "변형을 극도로 주의해야 하는 부분을 금형으로 누른 상태에서 실시하는 담금질은?", a: "프레스 담금질", d: ["분수 담금질", "수랭 담금질", "유냉 담금질", "분무 담금질"] },
+        { q: "연강의 탄소 함유량은 약 몇 %인가?", a: "0.14%", d: ["0.02%", "0.45%", "0.8%", "1.2%", "2.0%"] },
+        { q: "주철 중에 나타나는 탄소량의 주요 형태는?", a: "흑연 + 화합 탄소", d: ["유리 탄소", "유황 탄소", "수소 화합 탄소", "결합 규소"] },
+        { q: "백금의 결정 격자 형태는?", a: "면심 입방 격자(FCC)", d: ["체심 입방 격자", "조밀 육방 격자", "단사 격자", "삼방 격자"] },
+        { q: "표면은 내마모성이 높고 중심부는 내충격성이 큰 이중조직을 가지게 하는 열처리법은?", a: "표면 경화", d: ["완전 풀림", "노멀라이징", "심랭 처리", "항온 변태"] },
+        { q: "가스 침탄로의 구성 장치에 포함되는 것은?", a: "온도 조절기, 유냉 장치, 가스 변성로", d: ["산소 발생기, 건조 장치", "연마기, 세척기", "송풍기, 집진기"] },
+        { q: "스프링 강의 열처리 목적은?", a: "높은 탄성, 적당한 인성, 높은 내피로성 확보", d: ["연성 증대, 가공성 향상", "내식성 증대, 미관 향상", "자성 부여, 도전성 향상"] },
+        { q: "니켈과 몰리브덴을 함유한 구상 흑연 주철을 오스템퍼링한 기지 조직은?", a: "베이나이트", d: ["펄라이트", "마텐자이트", "페라이트", "소르바이트"] },
+        { q: "도면에서 축척(축소하여 그림)에 해당하는 척도는?", a: "1/2", d: ["2/1", "1/1", "5/1", "10/1"] },
+        { q: "열처리용 치공구 재료가 갖추어야 할 조건은?", a: "변형 저항성이 우수해야 한다", d: ["고온 내식성이 없어야 한다", "열팽창이 커야 한다", "열전도도가 매우 낮아야 한다"] },
+        { q: "강재 표면 탈탄의 원인이 되는 기체는?", a: "산소, 수증기, 이산화탄소 등", d: ["질소, 아르곤, 헬륨", "메탄, 에탄, 프로판", "일산화탄소, 암모니아"] },
+        { q: "Hz(헤르츠)는 어떤 물리량의 단위인가?", a: "주파수의 단위", d: ["전압의 단위", "전류의 단위", "저항의 단위", "힘의 단위", "압력의 단위"] },
+        { q: "잔류 오스테나이트를 마텐자이트화 하는 처리는?", a: "심랭 처리", d: ["고온 뜨임", "저온 뜨임", "청화법", "질화법"] },
+        { q: "강의 열처리된 조직 중 가장 높은 경도를 갖는 것은?", a: "시멘타이트", d: ["마텐자이트", "트루스타이트", "소르바이트", "펄라이트", "페라이트"] },
+        { q: "구조용 탄소강을 담금질한 후에 뜨임하여 사용하는 주된 이유는?", a: "인성을 증가시키기 위해서", d: ["경도를 높이기 위해서", "자성을 높이기 위해서", "변형을 크게 하기 위해서"] },
+        { q: "열처리로로 사용되고 있는 산성 내화재는?", a: "규산", d: ["마그네시아", "크롬", "알루미나", "석회"] },
+        { q: "높은 온도에서 증발에 의해 황동의 표면으로부터 아연이 탈출되는 현상은?", a: "고온 탈아연 현상", d: ["탈탄 현상", "산화 현상", "수소 취성", "청열 취성"] },
+        { q: "금속의 격자 결함에 해당하는 것은?", a: "전위, 공공, 적층 결함", d: ["기포, 개재물, 균열", "부식, 마모, 변형", "편석, 수축관, 모래구멍"] },
+        { q: "오스템퍼링 열처리를 하게 되면 얻어지는 조직은?", a: "베이나이트", d: ["트루스타이트", "소르바이트", "마텐자이트", "펄라이트"] },
+        { q: "제도 도면에서 미터 나사를 나타내는 기호는?", a: "M", d: ["W", "S", "G", "R"] },
+        { q: "가장 고온에서 실시하는 풀림 방법은?", a: "확산 풀림", d: ["구상화 풀림", "응력 제거 풀림", "완전 풀림", "연화 풀림"] },
+        { q: "분위기 열처리로의 종류에 해당하는 것은?", a: "진공로, 이온 질화로, 불활성 가스로", d: ["화염 가열로, 중유 가열로", "석탄 가열로, 아크로"] },
+        { q: "화학 조성을 변화시키지 않고 표면을 경화시키는 물리적 표면 경화법은?", a: "쇼트 피닝", d: ["침탄법", "질화법", "청화법", "금속 침투법"] },
+        { q: "하중의 크기 및 방향이 주기적으로 변화하는 하중(양진 하중)은?", a: "교번 하중", d: ["인장 하중", "압축 하중", "전단 하중", "충격 하중"] },
+        { q: "일반적인 합성 수지의 기계적 단점은?", a: "충격에 약하다", d: ["전기 절연성이 나쁘다", "내식성이 약하다", "무겁다", "열전도율이 높다"] },
+        { q: "강을 항온 변태시켰을 때 마텐자이트와 트루스타이트의 중간 조직으로 나타나는 것은?", a: "베이나이트", d: ["소르바이트", "펄라이트", "페라이트", "오스테나이트"] },
+        { q: "탄소강의 열처리에서 담금질 최고 경도와 직접적 관련이 있는 것은?", a: "탄소 함유량", d: ["가열 시간", "냉각 거리", "결정 격자 크기", "부품의 무게"] },
+        { q: "물이나 기름 담금질 시 균열이나 변형이 생기기 쉬운 강종에 적합한 열처리 방법은?", a: "마르퀜칭", d: ["수랭 담금질", "오스템퍼링", "화염 경화", "질화"] },
+        { q: "괴상 흑연을 가진 주철의 명칭은?", a: "가단 주철", d: ["회주철", "백주철", "구상 흑연 주철", "합금 주철"] },
+        { q: "마텐자이트와 베이나이트의 혼합 조직을 얻을 수 있는 항온 열처리는?", a: "마르템퍼링", d: ["오스템퍼링", "마르퀜칭", "타임 퀜칭", "분수 퀜칭"] },
+        { q: "담금질 냉각제로서 갖추어야 할 구비 조건 중 하나는?", a: "비등점이 높아야 한다", d: ["점성이 매우 높아야 한다", "인화점이 낮아야 한다", "휘발성이 커야 한다"] },
+        { q: "불스아이(Bull's eye) 조직이 나타나는 주철은?", a: "구상 정연 주철", d: ["가단 주철", "백주철", "반주철", "회주철"] },
+        { q: "방진 마스크 선정 시 주의해야 할 기준은?", a: "배기 저항이 너무 높으면 안 된다", d: ["무게가 매우 무거워야 한다", "시야가 가려져야 한다", "필터가 얇아야 한다"] },
+        { q: "불림(노멀라이징) 처리한 재료의 냉각 방식은?", a: "공랭(공기 냉각)", d: ["수랭", "유랭", "노랭(로 안 냉각)", "염욕 냉각"] },
+        { q: "담금질 처리된 제품을 망치 등으로 두드려 소리를 듣는 결함 검사법은?", a: "타진법", d: ["자분 탐상법", "침투 탐상법", "방사선 투과법", "초음파 탐상법"] },
+        { q: "재료가 지니고 있는 질긴 성질을 뜻하는 용어는?", a: "인성", d: ["취성", "연성", "전성", "경도", "강도", "탄성"] },
+        { q: "물체의 보이는 모양을 굵은 실선으로 나타내는 선은?", a: "외형선", d: ["중심선", "숨은선", "가상선", "치수선", "해칭선"] },
+        { q: "탄소강에서 헤어크랙(백점) 발생에 가장 큰 영향을 주는 원소는?", a: "수소", d: ["탄소", "황", "인", "망간", "규소"] },
+        { q: "기어의 모듈(Module)을 구하는 공식은?", a: "피치원의 지름 ÷ 잇수", d: ["잇수 ÷ 피치원의 지름", "원주피치 ÷ 3.14", "기초원 지름 ÷ 잇수"] },
+        { q: "주철의 유동성을 해치는 대표적인 합금 원소는?", a: "황", d: ["규소", "인", "망간", "탄소"] },
+        { q: "열처리할 때 적용하는 냉각 방식의 종류는?", a: "연속 냉각, 2단 냉각, 항온 냉각", d: ["순간 냉각, 지연 냉각", "자연 냉각, 강제 냉각", "부분 냉각, 전체 냉각"] },
+        { q: "재료의 굵기나 두께에 따라 담금질 효과가 다르게 나타나는 현상은?", a: "질량 효과", d: ["치수 효과", "표면 효과", "냉각 효과", "심부 효과"] },
+        { q: "실물의 크기와 같은 크기로 1:1로 표현하는 척도는?", a: "현척", d: ["배척", "축척", "비례척"] },
+        { q: "열처리용 치구(Jig)가 갖추어야 할 일반적인 조건은?", a: "범용성이 있어야 한다", d: ["일회용이어야 한다", "복잡해야 한다", "무거워야 한다"] },
+        { q: "탄화철(시멘타이트, Fe3C)의 금속 간 화합물에 있어 탄소의 원자비는?", a: "25%", d: ["6.67%", "0.02%", "2.11%", "50%"] },
+        { q: "침탄과 동시에 질화가 진행되는 장점을 가지는 침탄법은?", a: "액체 침탄(청화법)", d: ["가스 침탄", "고체 침탄", "이온 침탄", "진공 침탄"] },
+        { q: "질화에 의한 표면 경화 시 주로 사용되는 가스는?", a: "암모니아 가스", d: ["염소 가스", "산소 가스", "수소 가스", "일산화탄소 가스"] },
+        { q: "탄소강에서 청열 취성을 일으키는 온도의 범위는?", a: "200~300℃", d: ["100~150℃", "400~500℃", "600~700℃", "800~900℃"] },
+        { q: "담금질 균열을 방지하기 위한 설계적 대책은?", a: "날카로운 모서리 부분에 라운딩 처리", d: ["구멍을 많이 뚫는다", "단면 두께 차이를 크게 한다", "표면 거칠기를 높인다"] },
+        { q: "가스로의 안전장치 종류에는 어떤 것들이 있는가?", a: "압력 스위치, 연소 감시 장치, 상한·하한 온도계 등", d: ["경적 장치, 조명 장치", "계단 장치, 환기 장치"] },
+        { q: "질화 경도의 향상에 가장 효과적인 합금 원소는?", a: "크롬(Cr)", d: ["구리(Cu)", "니켈(Ni)", "망간(Mn)", "코발트(Co)"] },
+        { q: "노멀라이징 냉각 시 적열 상태(화색)가 없어지는 온도는 대략 얼마인가?", a: "550℃", d: ["200℃", "400℃", "700℃", "900℃"] },
+        { q: "내식용 알루미늄 합금의 종류는?", a: "알민, 알클래드(Alclad), 하이드로날륨", d: ["두랄루민, 초두랄루민", "실루민, 라우탈", "Y합금, 코비륨"] },
+        { q: "공석강을 담금질한 다음 300~400℃로 뜨임할 때 나타나는 조직은?", a: "트루스타이트", d: ["소르바이트", "펄라이트", "베이나이트", "마텐자이트"] }
     ];
 
     const massiveDictionary = [
         ["마텐자이트", "마르텐사이트", "마르텐자이트", "martensite", "마젠타이트", "마르텐"],
-        ["구리", "copper", "cu"], ["아연", "zinc", "zn"], ["황", "sulfur", "s"],
-        ["담금질", "퀜칭", "quenching"], ["풀림", "어닐링", "annealing"], ["뜨임", "템퍼링", "tempering"], ["불림", "노멀라이징", "normalizing"]
-        // (사전 생략 - 로직은 동일)
+        ["구리", "copper", "cu", "cu(구리)"],
+        ["아연", "zinc", "zn", "zn(아연)"],
+        ["황", "sulfur", "s", "유황"],
+        ["철", "iron", "fe"],
+        ["수소", "hydrogen", "h", "h2"],
+        ["크롬", "chromium", "cr"],
+        ["이산화탄소", "carbon dioxide", "co2", "탄산가스"],
+        ["암모니아", "ammonia", "nh3", "암모니아 가스", "암모니아가스"],
+        ["규산", "silica", "sio2", "실리카"],
+        ["탄산바륨", "탄산 바륨", "barium carbonate", "baco3", "탄산바리움"],
+        ["담금질", "퀜칭", "quenching", "퀜치", "야끼이레"],
+        ["풀림", "어닐링", "annealing", "아닐링", "야끼나마시"],
+        ["뜨임", "템퍼링", "tempering", "템파링", "야끼모도시"],
+        ["불림", "노멀라이징", "normalizing", "노말라이징", "야끼나라시"],
+        ["펄라이트", "pearlite", "페를라이트", "펠라이트"],
+        ["시멘타이트", "cementite", "fe3c", "시멘트타이트"],
+        ["오스테나이트", "austenite", "오스나이트", "오스테나이트화"],
+        ["베이나이트", "bainite", "베나이트"],
+        ["트루스타이트", "troostite", "트루사이트", "트루스토나이트"],
+        ["마르퀜칭", "marquenching", "마르퀜치", "마퀜칭", "마르퀜칭처리"],
+        ["마르템퍼링", "martempering", "마템퍼링", "마르템퍼링처리"],
+        ["심랭처리", "서브제로", "심랭 처리", "subzero", "sub-zero", "심냉처리"],
+        ["항온변태", "항온 변태", "isothermal transformation", "항온변태처리"],
+        ["구상화풀림", "구상화 풀림", "spheroidizing", "구상화", "구상화처리"],
+        ["확산풀림", "확산 풀림", "diffusion annealing", "확산 풀림 처리"],
+        ["표면경화", "표면 경화", "surface hardening", "표면경화처리"],
+        ["침탄", "carburizing", "침탄법", "침탄처리"],
+        ["질화", "nitriding", "질화법", "질화처리"],
+        ["청화법", "액체침탄", "액체 침탄", "liquid carburizing", "시안화법", "액체침탄법"],
+        ["쇼트피닝", "쇼트 피닝", "shot peening", "숏피닝", "쇼트 피닝 처리"],
+        ["화염경화", "화염 경화", "flame hardening", "화염경화법"],
+        ["가단주철", "가단 주철", "malleable cast iron", "가단"],
+        ["구상흑연주철", "구상 흑연 주철", "덕타일 주철", "노듈러 주철", "nodular cast iron", "ductile cast iron", "구상 정연 주철", "닥타일주철"],
+        ["주강", "cast steel", "주강품"],
+        ["연강", "mild steel", "저탄소강"],
+        ["마레이징강", "마레이징 강", "maraging steel", "마레이징"],
+        ["고속도강", "고속도 강", "high speed steel", "hss", "하이스강", "고속도 공구강"],
+        ["인성", "질긴 성질", "질긴성질", "toughness", "인기"],
+        ["경도", "단단함", "hardness", "굳기"],
+        ["열전도도", "열전도율", "열전도", "thermal conductivity"],
+        ["자기변태", "자기 변태", "magnetic transformation", "자기 변태점"],
+        ["질량효과", "질량 효과", "mass effect", "질량 효과 현상"],
+        ["제베크효과", "제백효과", "seebeck effect", "제베크 효과", "seebeck", "제백 효과"],
+        ["열전쌍", "열전대", "thermocouple", "열전쌍 온도계", "열전대 온도계"],
+        ["면심입방격자", "면심입방", "fcc", "face centered cubic", "면심입방구조"],
+        ["전위", "dislocation", "전위결함"],
+        ["공공", "vacancy", "공격자점", "빈자리"],
+        ["적층결함", "적층 결함", "stacking fault"],
+        ["정면도와 배면도", "정면도 배면도", "정면도, 배면도", "정면도 배면도 일치"],
+        ["네오디뮴", "nd", "neodymium", "nd자석", "네오디뮴 자석", "nd(네오디뮴)자석", "네오디늄"],
+        ["냉각 속도가 느릴 때", "냉각속도 느림", "느린 냉각", "냉각이 느릴 때", "냉각 속도 부족"],
+        ["마찰계수가 작아야 한다", "마찰계수 작음", "마찰 적음", "마찰 작아야", "마찰이 적어야", "작은 마찰계수"],
+        ["열전도도가 작아야 한다", "열전도율 낮아야", "열전도 작음", "열전도 낮음", "낮은 열전도도"],
+        ["국부적인 담금질이 가능하다", "국부 담금질", "부분 담금질", "국부 경화", "국부적인 담금질"],
+        ["강박 시험", "강박시험", "강박 테스트"],
+        ["표면 침탄층의 경화", "침탄층 경화", "표면 경화", "표면 침탄층 경화"],
+        ["침탄법, 질화법, 금속 침투법", "침탄 질화 금속침투", "침탄법 질화법 금속침투법", "침탄 질화 금속 침투"],
+        ["열분석법, 열팽창법, 전기 저항법", "열분석 열팽창 전기저항", "열분석법 열팽창법 전기저항법", "열분석 열팽창 전기 저항"],
+        ["전기로, 가스로, 분위기로", "전기로 가스로 분위기로", "전기로 가스로 분위기로 등", "전기로 가스로 분위기로등"],
+        ["768", "768도", "768c", "768℃", "약 768도"],
+        ["아이 볼트", "아이볼트", "eye bolt"],
+        ["우라늄, 토륨", "우라늄 토륨", "u th", "uranium thorium", "우라늄과 토륨"],
+        ["히스테리시스의 오차가 없어야 한다", "히스테리시스 오차 없음", "오차 없어야", "히스테리시스 오차"],
+        ["염욕 열처리", "염욕열처리", "salt bath", "솔트 바스"],
+        ["청색", "파란색", "파랑", "blue", "푸른색"],
+        ["백금-백금로듐", "백금 백금로듐", "pr 열전쌍", "pt-rh", "백금-백금로듐(pr) 열전쌍", "백금 백금 로듐"],
+        ["회전 레토르트", "회전레토르트", "회전식 레토르트", "회전 레토르트로"],
+        ["석영관, 알루미나관, 스테인리스관", "석영 알루미나 스테인리스", "석영관 알루미나관 스테인리스관"],
+        ["구리-콘스탄탄", "구리 콘스탄탄", "cu-constantan", "구리콘스탄탄"],
+        ["담금질 균열", "퀜칭 크랙", "quenching crack", "담금질균열", "퀜칭 균열"],
+        ["열피로 저항성이 커야 한다", "열피로 저항성", "내열피로성", "열피로에 강해야", "큰 열피로 저항성"],
+        ["단롤법, 원심법, 스프레이법", "단롤 원심 스프레이", "단롤법 원심법 스프레이법", "액체 급냉법"],
+        ["프레스 담금질", "프레스담금질", "press quenching", "다이 담금질"],
+        ["0.14", "0.14%", "약 0.14%"],
+        ["흑연 + 화합 탄소", "흑연 화합탄소", "흑연과 화합탄소", "흑연 화합 탄소", "흑연+화합탄소"],
+        ["온도 조절기, 유냉 장치, 가스 변성로", "온도조절기 유냉장치 가스변성로", "온도조절기, 유냉장치, 가스변성로"],
+        ["탄성, 적당한 인성, 높은 내피로성", "탄성 인성 내피로성", "높은 탄성 인성 내피로성", "탄성 인성 피로"],
+        ["1/2", "0.5", "반", "이분의일", "축척 1/2"],
+        ["변형 저항성이 우수해야 한다", "변형 저항성", "내변형성", "변형이 적어야", "우수한 변형 저항성"],
+        ["산소, 수증기, 이산화탄소", "산소 수증기 이산화탄소", "o2 h2o co2", "산소, 수증기, 이산화탄소 등", "산소 수증기 이산화탄소등"],
+        ["주파수", "frequency", "hz", "주파수 단위"],
+        ["인성을 증가시키기 위해서", "인성 증가", "인성 향상", "인성 부여", "인성을 증가", "인성 부여를 위해"],
+        ["고온 탈아연", "고온탈아연", "탈아연 현상", "탈아연"],
+        ["진공로, 이온 질화로, 불활성 가스로", "진공로 이온질화로 불활성가스로"],
+        ["교번 하중", "교번하중", "alternating load", "양진 하중"],
+        ["충격에 약하다", "충격 약함", "충격에 취약", "내충격성 낮음", "충격에 깨지기 쉽다"],
+        ["비등점이 높아야 한다", "비등점 높음", "끓는점 높음", "높은 비등점"],
+        ["배기 저항이 너무 높으면 안 된다", "배기저항 낮아야", "배기저항 적어야", "배기 저항 낮을 것"],
+        ["공랭", "공기냉각", "공기 냉각", "air cooling", "공랭(공기 냉각)", "대기 냉각"],
+        ["타진법", "타진", "tapping", "음향 검사"],
+        ["외형선", "실선", "굵은 실선", "outline", "물체 외형선"],
+        ["피치원의 지름 ÷ 잇수", "피치원지름 나누기 잇수", "피치원 지름/잇수", "d/z", "피치원 지름 나누기 잇수"],
+        ["연속 냉각, 2단 냉각, 항온 냉각", "연속냉각 2단냉각 항온냉각", "연속 2단 항온"],
+        ["현척", "실물 크기", "1:1", "실척"],
+        ["범용성이 있어야 한다", "범용성", "다목적", "넓은 범용성"],
+        ["25", "25%", "약 25%"],
+        ["200~300", "200에서 300", "200-300", "200~300℃", "200-300℃", "200도에서 300도"],
+        ["라운딩 처리", "라운딩", "모서리 둥글게", "둥글게", "둥글게 처리"],
+        ["압력 스위치, 연소 감시 장치, 온도계", "압력스위치 연소감시 온도계", "압력 스위치, 연소 감시 장치, 상한·하한 온도계 등"],
+        ["550", "550도", "550℃", "약 550도"],
+        ["알민, 알클래드, 하이드로날륨", "알민 알클래드 하이드로날륨", "알민, 알클래드(alclad), 하이드로날륨", "알민 알클래드"],
+        ["구리+아연", "구리아연", "구리와 아연", "cu+zn", "cu zn"]
     ];
 
     let currentQuestions = [];
@@ -208,28 +481,11 @@
         return arr;
     }
 
-    // 스마트 오답 생성
-    function getSmartDistractors(currentItem) {
-        const isNum = /\d/.test(currentItem.a);
-        const suffix = currentItem.a.slice(-2);
-        
-        const scored = rawData.filter(x => x.a !== currentItem.a).map(item => {
-            let score = Math.random();
-            if (isNum && /\d/.test(item.a)) score += 5;
-            if (item.a.endsWith(suffix)) score += 3;
-            return { a: item.a, score };
-        });
-
-        scored.sort((a, b) => b.score - a.score);
-        return [...new Set(scored.map(x => x.a))].slice(0, 3);
-    }
-
     function startQuiz() {
-        const num = parseInt(document.getElementById('num-questions').value) || 10;
-        const selected = shuffleArray(rawData).slice(0, Math.min(num, 100));
-        currentQuestions = [];
-        userAnswers = {};
-
+        const numInput = parseInt(document.getElementById('num-questions').value);
+        const num = isNaN(numInput) ? 10 : Math.min(Math.max(numInput, 1), 100);
+        const selected = shuffleArray(rawData).slice(0, num);
+        currentQuestions = []; userAnswers = {};
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
 
@@ -241,18 +497,11 @@
 
             if (isSAQ) {
                 currentQuestions.push({ type: 'saq', question: item.q, answer: item.a });
-                html += `<input type="text" class="saq-input" oninput="userAnswers[${index}] = this.value" placeholder="정답을 입력하세요">`;
+                html += `<input type="text" class="saq-input" oninput="userAnswers[${index}] = this.value" placeholder="답안을 입력하세요">`;
             } else {
-                // 💡 [수정됨] 정답과 오답 3개를 합친 뒤 통째로 한 번 더 섞습니다.
-                const options = shuffleArray([item.a, ...getSmartDistractors(item)]);
-                currentQuestions.push({ 
-                    type: 'mcq', 
-                    question: item.q, 
-                    options: options, 
-                    correctIndex: options.indexOf(item.a), // 섞인 배열에서 정답의 위치를 새로 찾음
-                    answer: item.a 
-                });
-                
+                const distractors = shuffleArray(item.d).slice(0, 3);
+                const options = shuffleArray([item.a, ...distractors]);
+                currentQuestions.push({ type: 'mcq', question: item.q, options, correctIndex: options.indexOf(item.a), answer: item.a });
                 html += `<ul class="options-list" id="options-list-${index}">` + options.map((o, oi) => `
                     <li class="option-item" onclick="userAnswers[${index}]=${oi}; document.querySelectorAll('#options-list-${index} .option-item').forEach(e=>e.classList.remove('selected')); this.classList.add('selected');">
                         ${oi + 1}. ${o}
@@ -264,14 +513,24 @@
 
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
+        window.scrollTo(0, 0);
     }
 
-    // (정답 체크 로직 생략 - 이전과 동일)
+    function normalizeString(str) {
+        return str.toLowerCase().replace(/[\s\(\)\+,\.\-%\℃\/\:\·]/g, '');
+    }
+
     function checkAnswerOffline(correct, user) {
         if (!user) return false;
-        let c = correct.toLowerCase().replace(/\s+/g, '');
-        let u = user.toLowerCase().replace(/\s+/g, '');
-        return c === u || c.includes(u) || u.includes(c);
+        let c = normalizeString(correct);
+        let u = normalizeString(user);
+        if (c === u || u.includes(c)) return true;
+        for (let group of massiveDictionary) {
+            if (group.some(w => c.includes(normalizeString(w)))) {
+                if (group.some(w => u.includes(normalizeString(w)))) return true;
+            }
+        }
+        return false;
     }
 
     function submitQuiz() {
@@ -281,32 +540,32 @@
 
         currentQuestions.forEach((q, i) => {
             const block = document.createElement('div');
-            block.className = 'question-block';
-            let isCorrect = false;
-            let resultHtml = `<div class="question-title">Q${i+1}. ${q.question}</div>`;
+            block.className = 'card question-block';
+            let isCorrect = (q.type === 'mcq') ? (userAnswers[i] === q.correctIndex) : checkAnswerOffline(q.answer, userAnswers[i]);
+            if (isCorrect) correctCount++;
 
+            let resultHtml = `<span class="result-tag ${isCorrect ? 'correct-answer' : 'wrong-answer'}">${isCorrect ? '정답' : '오답'}</span>`;
+            resultHtml += `<div class="question-title">Q${i+1}. ${q.question}</div>`;
+            
             if (q.type === 'mcq') {
-                isCorrect = userAnswers[i] === q.correctIndex;
                 resultHtml += `<ul class="options-list">` + q.options.map((o, oi) => `
                     <li class="option-item ${oi === q.correctIndex ? 'correct-answer' : (oi === userAnswers[i] ? 'wrong-answer' : '')}">
                         ${oi+1}. ${o}
                     </li>`).join('') + `</ul>`;
             } else {
-                isCorrect = checkAnswerOffline(q.answer, userAnswers[i]);
-                resultHtml += `<div class="saq-result ${isCorrect ? 'saq-correct' : 'saq-wrong'}">작성: ${userAnswers[i] || '(미입력)'}<br>정답: ${q.answer}</div>`;
+                resultHtml += `<div class="saq-result ${isCorrect ? 'correct-answer' : 'wrong-answer'}">제출 답안: ${userAnswers[i] || '(미입력)'}<br>정답: ${q.answer}</div>`;
             }
-            if (isCorrect) correctCount++;
-            resultHtml += `<div class="feedback-msg ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}">${isCorrect ? '정답입니다.' : '오답입니다.'}</div>`;
+            
             block.innerHTML = resultHtml;
             review.appendChild(block);
         });
 
         document.getElementById('final-score').innerText = Math.round((correctCount / currentQuestions.length) * 100);
-        document.getElementById('total-q-count').innerText = currentQuestions.length;
         document.getElementById('correct-q-count').innerText = correctCount;
+        document.getElementById('total-q-count').innerText = currentQuestions.length;
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
     }
 </script>
 </body>
