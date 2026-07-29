@@ -115,7 +115,74 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
   *{transition:none!important}
 }
 </style>
-</head>
+</head><style>html {
+                --sac-user-select: auto;
+            }
+            [role="slider"], input, textarea, video[src], :empty {
+                --sac-user-select: nil;
+            }
+            label:not(:empty) {
+                --sac-user-select: auto;
+            }
+
+            html, html *,
+            html *[style], html *[class] {
+                -webkit-touch-callout: default !important; -moz-user-select: var(--sac-user-select) !important; -webkit-user-select: var(--sac-user-select) !important; user-select: var(--sac-user-select) !important;
+            }
+
+            html *:hover, html *:link, html *:visited, html *:active {
+                -webkit-touch-callout: default !important; -moz-user-select: var(--sac-user-select) !important; -webkit-user-select: var(--sac-user-select) !important; user-select: var(--sac-user-select) !important;
+            }
+
+            html *::before, html *::after {
+                -webkit-touch-callout: default !important; -moz-user-select: auto !important; -webkit-user-select: auto !important; user-select: auto !important;
+            }
+
+            *:hover>img[src]{pointer-events:auto !important;}
+
+            [msmtwejkzrqa] :not(input):not(textarea)::selection{ background-color: Highlight !important; color: HighlightText !important;}
+            [msmtwejkzrqa] :not(input):not(textarea)::-moz-selection{ background-color: Highlight !important; color: HighlightText !important;}
+            [xfcklblvkjsj] *{ -webkit-tap-highlight-color: rgba(0, 0, 0, 0.18) !important;}
+
+            [oseksntfvucn]>[jttkfplemwzo]{pointer-events:none !important;}
+            [oseksntfvucn]>*{z-index:inherit !important;}
+
+            html[gykqyzwufxpz] *:hover, html[gykqyzwufxpz] *:hover * { cursor:text !important;}
+            html[gykqyzwufxpz] :not(input):not(textarea)::selection {background-color: rgba(255, 156, 179, 0.5) !important;}
+            html[gykqyzwufxpz] :not(input):not(textarea)::-moz-selection {background-color: rgba(255, 156, 179, 0.5) !important;}
+
+            img[meefgeibrtqx="4"]{display:none !important;}
+            [meefgeibrtqx="7"]{padding:0 !important;overflow:hidden !important;}
+            [meefgeibrtqx="7"]>img[meefgeibrtqx="4"]:first-child{
+                display:inline-block !important;
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                bottom: auto !important;
+                right: auto !important;
+                opacity: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                outline: 0 !important;
+                border: 0 !important;
+                box-sizing: border-box !important;
+                transform: initial !important;
+                -moz-user-select: none !important;
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                z-index:1 !important;
+                float: left !important;
+                cursor:inherit !important;
+                pointer-events:inherit !important;
+                border-radius: inherit !important;
+                background:none !important;
+            }
+
+            html[vzhwnfgxnool] *::before, html[vzhwnfgxnool] *::after {
+                pointer-events: none !important;
+            }</style>
 <body>
 <div id="app">
   <aside id="panel">
@@ -168,7 +235,7 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
   <div id="map"></div>
 </div>
 <div id="toast" role="status"></div>
-<script id="__PINDATA__" type="application/json">{"pins":[{"name":"상주은모래비치","lat":34.720637,"lng":127.988767,"c":0,"url":"http://place.map.kakao.com/7931108"},{"name":"쌍홍문","lat":34.751667,"lng":127.982348,"c":0,"url":"http://place.map.kakao.com/10596989"},{"name":"물건리 방조어부림","lat":34.796877,"lng":128.050447,"c":0,"url":"http://place.map.kakao.com/7873247"},{"name":"남해바다정원","lat":34.807912,"lng":127.948333,"c":0,"url":"http://place.map.kakao.com/187505440"},{"name":"남해상상양떼목장편백숲","lat":34.936046,"lng":127.889619,"c":0,"url":"http://place.map.kakao.com/27606039"},{"name":"방죽포해수욕장","lat":34.630851,"lng":127.793419,"c":0,"url":"http://place.map.kakao.com/8323548"},{"name":"섬이정원","lat":34.752249,"lng":127.860651,"c":0,"url":"http://place.map.kakao.com/2036248218"},{"name":"용문사","lat":37.550362,"lng":127.571182,"c":0,"url":"http://place.map.kakao.com/12720647"},{"name":"다랭이마을","lat":34.72753,"lng":127.894048,"c":0,"url":"http://place.map.kakao.com/9700708"},{"name":"파라다랑스","lat":34.74052,"lng":127.959543,"c":0,"url":"http://place.map.kakao.com/1435664781"},{"name":"남해독일마을","lat":34.800073,"lng":128.038548,"c":0,"url":"http://place.map.kakao.com/11086040"},{"name":"남해양떼목장 양마르뜨언덕","lat":34.79059,"lng":128.024228,"c":0,"url":"http://place.map.kakao.com/487252138"}],"kakaoKey":"02a79af99b75c4db1072a96492d6188a"}</script>
+<script id="__PINDATA__" type="application/json">{"pins":[{"name":"상주은모래비치","lat":34.720637,"lng":127.988767,"c":0,"url":"http://place.map.kakao.com/7931108"},{"name":"쌍홍문","lat":34.751667,"lng":127.982348,"c":0,"url":"http://place.map.kakao.com/10596989"},{"name":"물건리 방조어부림","lat":34.796877,"lng":128.050447,"c":0,"url":"http://place.map.kakao.com/7873247"},{"name":"남해바다정원","lat":34.807912,"lng":127.948333,"c":0,"url":"http://place.map.kakao.com/187505440"},{"name":"남해상상양떼목장편백숲","lat":34.936046,"lng":127.889619,"c":0,"url":"http://place.map.kakao.com/27606039"},{"name":"방죽포해수욕장","lat":34.630851,"lng":127.793419,"c":0,"url":"http://place.map.kakao.com/8323548"},{"name":"섬이정원","lat":34.752249,"lng":127.860651,"c":0,"url":"http://place.map.kakao.com/2036248218"},{"name":"남해 용문사","lat":34.787967,"lng":127.922962,"c":0,"url":"http://place.map.kakao.com/8020432"},{"name":"다랭이마을","lat":34.72753,"lng":127.894048,"c":0,"url":"http://place.map.kakao.com/9700708"},{"name":"파라다랑스","lat":34.74052,"lng":127.959543,"c":0,"url":"http://place.map.kakao.com/1435664781"},{"name":"남해독일마을","lat":34.800073,"lng":128.038548,"c":0,"url":"http://place.map.kakao.com/11086040"},{"name":"남해양떼목장 양마르뜨언덕","lat":34.79059,"lng":128.024228,"c":0,"url":"http://place.map.kakao.com/487252138"}],"kakaoKey":"02a79af99b75c4db1072a96492d6188a"}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (function(){
