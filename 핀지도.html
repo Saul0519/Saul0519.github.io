@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>지도 핀보드</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#0f1114; --panel:#16191e; --panel2:#1d2129; --line:#282e38;
+  --text:#eef1f5; --sub:#98a2b0; --bubble:#ffd43b; --bubble-ink:#1d1a10;
+  --danger:#ff7070; --ok:#5fd0a5;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+:focus-visible{outline:2px solid rgba(255,212,59,.7);outline-offset:2px}
+#app{display:flex;height:100%}
+#panel{width:344px;min-width:312px;display:flex;flex-direction:column;background:var(--panel);border-right:1px solid var(--line)}
+.head{padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+h1{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:8px}
+.count{font:600 12px/1 var(--mono);color:var(--bubble);background:rgba(255,212,59,.12);border:1px solid rgba(255,212,59,.35);padding:4px 7px;border-radius:99px}
+.btn{font:inherit;font-size:13px;font-weight:600;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 12px;cursor:pointer;transition:filter .12s,background .12s}
+.btn:hover{filter:brightness(1.18)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.primary{background:var(--bubble);border-color:var(--bubble);color:var(--bubble-ink);font-weight:700;position:relative}
+.btn.ghost{background:transparent}
+.btn.on{background:rgba(255,212,59,.14);border-color:rgba(255,212,59,.5);color:var(--bubble)}
+.dot{position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid var(--panel)}
+.search{position:relative;display:flex;gap:8px}
+#q{flex:1;font:inherit;font-size:14px;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;outline:none;min-width:0}
+#q:focus{border-color:rgba(255,212,59,.55)}
+#q::placeholder{color:#5d6673}
+.results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.5);z-index:1200;max-height:300px;overflow-y:auto}
+.ritem{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);color:var(--text);padding:10px 12px;cursor:pointer}
+.ritem:last-child{border-bottom:0}
+.ritem:hover{background:rgba(255,212,59,.08)}
+.rname{display:block;font-size:13.5px;font-weight:700}
+.rsub{display:block;font-size:11.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmsg{padding:12px;font-size:12.5px;color:var(--sub);line-height:1.6}
+.rmsg b{color:var(--text)}
+.tools{display:flex;gap:8px;margin-top:10px}
+.hint{margin:10px 2px 0;font-size:11.5px;color:var(--sub);line-height:1.5}
+kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px}
+.fold{border-bottom:1px solid var(--line);padding:10px 16px 14px}
+.fold summary{cursor:pointer;list-style:none;font-size:12.5px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:6px;user-select:none;flex-wrap:wrap}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary::before{content:"▸";font-size:10px;transition:transform .15s}
+.fold[open] summary::before{transform:rotate(90deg)}
+.stat{font-weight:600;font-size:11.5px;color:var(--sub)}
+.stat.ok{color:var(--ok)}
+.keyrow{display:flex;gap:8px;margin-top:11px}
+#kakaoKeyInput{flex:1;min-width:0;font:500 12px var(--mono);color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;outline:none}
+#kakaoKeyInput:focus{border-color:rgba(255,212,59,.55)}
+#kakaoKeyInput::placeholder{color:#5d6673;font-family:Pretendard,sans-serif}
+.guide{margin:10px 0 0;padding-left:18px;font-size:11.5px;color:var(--sub);line-height:1.75}
+.guide b{color:var(--text)}
+.guide a{color:var(--bubble);text-decoration:none}
+.guide a:hover{text-decoration:underline}
+.keymsg{margin:9px 0 0;font-size:11.5px;line-height:1.65;color:#ffb4b4;background:rgba(255,112,112,.08);border:1px solid rgba(255,112,112,.3);border-radius:9px;padding:9px 11px}
+.keymsg b{color:var(--text)}
+.setbox .hint{margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.chip{font:inherit;font-size:12.5px;font-weight:700;color:var(--bubble-ink);background:var(--bubble);border:0;border-radius:12px 12px 3px 12px;padding:7px 11px;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.35);transition:transform .1s}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:translateY(0)}
+.list{flex:1;overflow-y:auto;margin:0;padding:8px;list-style:none}
+.item{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:10px}
+.item:hover{background:var(--panel2)}
+.cdot{width:16px;height:16px;flex:none;border-radius:50% 50% 50% 2px;background:var(--pc);border:1px solid rgba(0,0,0,.4);cursor:pointer;padding:0}
+.meta{flex:1;min-width:0}
+.name{display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;font-weight:600;color:var(--text);background:none;border:0;padding:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.name:hover{color:var(--bubble)}
+.coords{font:500 10.5px var(--mono);color:var(--sub)}
+.rein{width:100%;font:inherit;font-size:13.5px;font-weight:600;color:var(--text);background:var(--panel2);border:1px solid rgba(255,212,59,.55);border-radius:6px;padding:2px 6px;outline:none}
+.acts{display:flex;gap:2px;opacity:0;transition:opacity .12s}
+.item:hover .acts,.item:focus-within .acts{opacity:1}
+.ib{font:inherit;font-size:11px;color:var(--sub);background:none;border:0;border-radius:6px;width:24px;height:24px;cursor:pointer;padding:0}
+.ib:hover{background:var(--line);color:var(--text)}
+.ib.del:hover{color:var(--danger)}
+.empty{padding:28px 18px;text-align:center;color:var(--sub);font-size:13px;line-height:1.7}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;border-top:1px solid var(--line)}
+.sel{font:inherit;font-size:12px;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.credit{font-size:10.5px;color:#5d6673}
+#map{flex:1;background:#1a1d22}
+#map.adding{cursor:crosshair}
+.leaflet-container{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif}
+.leaflet-popup-content-wrapper{background:var(--panel2);color:var(--text);border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.leaflet-popup-tip{background:var(--panel2)}
+.leaflet-popup-content{margin:12px 14px;font-size:13px;line-height:1.5}
+.leaflet-container a.leaflet-popup-close-button{color:var(--sub)}
+.leaflet-bar a{background:var(--panel2);color:var(--text);border-bottom-color:var(--line)}
+.leaflet-bar a:hover,.leaflet-bar a:focus{background:var(--line);color:var(--text)}
+.leaflet-control-attribution{background:rgba(15,17,20,.75)!important;color:#7b8492!important}
+.leaflet-control-attribution a{color:#9aa6b6!important}
+.pp-name{font-weight:700;font-size:14px}
+.pp-co{font:500 11px var(--mono);color:var(--sub);display:block;margin-top:3px}
+.pp-link{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:var(--bubble);text-decoration:none}
+.pp-link:hover{text-decoration:underline}
+.npform{display:flex;flex-direction:column;gap:8px;min-width:190px}
+.npform input{font:inherit;font-size:13px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
+.npform input:focus{border-color:rgba(255,212,59,.55)}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:#20242c;color:var(--text);border:1px solid var(--line);border-radius:99px;padding:10px 18px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:all .22s;z-index:3000;max-width:86vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:760px){
+  #app{flex-direction:column}
+  #panel{width:100%;min-width:0;flex:0 0 50%;border-right:0;border-bottom:1px solid var(--line)}
+  #map{flex:1}
+  .fold{padding:8px 14px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <div class="head">
+      <div class="title-row">
+        <h1>지도 핀보드 <span id="count" class="count">0</span></h1>
+        <button id="saveBtn" class="btn primary" title="핀 데이터가 담긴 HTML로 저장 (Ctrl+S)">저장<span id="dirtyDot" class="dot" hidden=""></span></button>
+      </div>
+      <div class="search">
+        <input id="q" type="text" placeholder="장소·가게 이름 검색" autocomplete="off">
+        <button id="searchBtn" class="btn">검색</button>
+        <div id="results" class="results" hidden=""></div>
+      </div>
+      <div class="tools">
+        <button id="clickAdd" class="btn ghost">📍 지도 눌러서 추가</button>
+        <button id="fitAll" class="btn ghost">전체 보기</button>
+      </div>
+      <p class="hint">저장(<kbd>Ctrl</kbd>+<kbd>S</kbd>)하면 핀과 설정이 이 HTML 파일 안에 함께 담겨요. 핀은 드래그로 위치를 다듬을 수 있어요.</p>
+    </div>
+    <details id="setbox" class="fold setbox">
+      <summary>검색 설정 <span id="skStatus" class="stat"></span></summary>
+      <div class="keyrow">
+        <input id="kakaoKeyInput" type="text" placeholder="카카오 REST API 키 붙여넣기" autocomplete="off" spellcheck="false">
+        <button id="keyApply" class="btn">적용</button>
+        <button id="keyClear" class="btn ghost" title="키 지우기">지우기</button>
+      </div>
+      <p id="keyMsg" class="keymsg" hidden=""></p>
+      <ol class="guide">
+        <li><a href="https://developers.kakao.com" target="_blank" rel="noopener">developers.kakao.com</a> 로그인 → 내 애플리케이션 → 애플리케이션 추가하기</li>
+        <li>만든 앱의 <b>제품 설정 › 카카오맵 › 사용 설정</b>에서 상태를 <b>ON</b> — 2024.12부터 필수라 안 켜면 403이 나요</li>
+        <li><b>앱 설정 › 앱 키</b>에서 <b>REST API 키</b>를 복사 (JavaScript 키 아님)</li>
+        <li>위 칸에 붙여넣고 적용 → <b>저장(Ctrl+S)</b>까지 해야 파일에 기억돼요</li>
+      </ol>
+      <p class="hint">키는 이 파일 안에 저장돼요. 파일을 다른 사람과 공유하면 키도 함께 전달되는 점만 기억해 주세요.</p>
+    </details>
+    <details class="fold chipbox" open="">
+      <summary>남해 여행 후보 · 누르면 바로 검색</summary>
+      <div id="chips" class="chips"></div>
+    </details>
+    <ul id="list" class="list"></ul>
+    <div class="foot">
+      <select id="basemap" class="sel" aria-label="지도 스타일">
+        <option value="osm">기본 지도</option>
+        <option value="voyager">밝은 지도</option>
+        <option value="dark">어두운 지도</option>
+      </select>
+      <span class="credit">© OpenStreetMap · Kakao</span>
+    </div>
+  </aside>
+  <div id="map"></div>
+</div>
+<div id="toast" role="status"></div>
+<script id="__PINDATA__" type="application/json">{"pins":[{"name":"상주은모래비치","lat":34.720637,"lng":127.988767,"c":0,"url":"http://place.map.kakao.com/7931108"},{"name":"쌍홍문","lat":34.751667,"lng":127.982348,"c":0,"url":"http://place.map.kakao.com/10596989"},{"name":"물건리 방조어부림","lat":34.796877,"lng":128.050447,"c":0,"url":"http://place.map.kakao.com/7873247"},{"name":"남해바다정원","lat":34.807912,"lng":127.948333,"c":0,"url":"http://place.map.kakao.com/187505440"},{"name":"남해상상양떼목장편백숲","lat":34.936046,"lng":127.889619,"c":0,"url":"http://place.map.kakao.com/27606039"},{"name":"방죽포해수욕장","lat":34.630851,"lng":127.793419,"c":0,"url":"http://place.map.kakao.com/8323548"},{"name":"섬이정원","lat":34.752249,"lng":127.860651,"c":0,"url":"http://place.map.kakao.com/2036248218"},{"name":"용문사","lat":37.550362,"lng":127.571182,"c":0,"url":"http://place.map.kakao.com/12720647"},{"name":"다랭이마을","lat":34.72753,"lng":127.894048,"c":0,"url":"http://place.map.kakao.com/9700708"},{"name":"파라다랑스","lat":34.74052,"lng":127.959543,"c":0,"url":"http://place.map.kakao.com/1435664781"},{"name":"남해독일마을","lat":34.800073,"lng":128.038548,"c":0,"url":"http://place.map.kakao.com/11086040"},{"name":"남해양떼목장 양마르뜨언덕","lat":34.79059,"lng":128.024228,"c":0,"url":"http://place.map.kakao.com/487252138"}],"kakaoKey":"02a79af99b75c4db1072a96492d6188a"}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* 저장용 스냅샷: 앱이 DOM을 건드리기 전에 원본 소스를 확보 */
+var SNAP='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+var PD_ID='__PIN'+'DATA__';
+var PALETTE=['#ffd43b','#ff7b7b','#57aaff','#43d6a5','#b18cff','#f2f4f8'];
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+
+/* ---------- 상태 (v1 배열 포맷도 호환) ---------- */
+var store={pins:[],kakaoKey:''};
+try{
+  var raw=JSON.parse($(PD_ID).textContent||'null');
+  if(Array.isArray(raw))store.pins=raw;
+  else if(raw&&typeof raw==='object'){
+    store.pins=Array.isArray(raw.pins)?raw.pins:[];
+    store.kakaoKey=typeof raw.kakaoKey==='string'?raw.kakaoKey:'';
+  }
+}catch(e){}
+var pins=store.pins;
+var kakaoKey=store.kakaoKey;
+var dirty=false,fileHandle=null,clickMode=false,markers=[];
+
+/* ---------- 지도 ---------- */
+var map=L.map('map').setView([35.9,127.8],7);
+var layers={
+  osm:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}),
+  voyager:L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:20,attribution:'&copy; OpenStreetMap &copy; CARTO'}),
+  dark:L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:20,attribution:'&copy; OpenStreetMap &copy; CARTO'})
+};
+var curLayer=layers.osm.addTo(map);
+var grp=L.layerGroup().addTo(map);
+
+function pinSvg(n,color){
+  return '<svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">'
+  +'<path d="M16 1C7.7 1 1 7.6 1 15.8 1 26 16 41 16 41s15-15 15-25.2C31 7.6 24.3 1 16 1z" fill="'+color+'" stroke="rgba(0,0,0,.4)" stroke-width="1.4"/>'
+  +'<circle cx="16" cy="15.5" r="10.2" fill="rgba(255,255,255,.94)"/>'
+  +'<text x="16" y="20" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11.5" font-weight="800" fill="#1c1f24">'+n+'</text>'
+  +'</svg>';
+}
+function makeIcon(n,ci){
+  return L.divIcon({className:'',html:pinSvg(n,PALETTE[ci%PALETTE.length]),iconSize:[32,42],iconAnchor:[16,41],popupAnchor:[0,-38]});
+}
+function popupHtml(p){
+  var h='<span class="pp-name">'+esc(p.name)+'</span>'
+  +'<span class="pp-co">'+(+p.lat).toFixed(5)+', '+(+p.lng).toFixed(5)+'</span>';
+  if(p.url&&/^https?:\/\//.test(p.url)){
+    h+='<a class="pp-link" href="'+esc(p.url)+'" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>';
+  }
+  return h;
+}
+
+/* ---------- 렌더 ---------- */
+function refresh(){
+  grp.clearLayers();markers=[];
+  pins.forEach(function(p,i){
+    var mk=L.marker([p.lat,p.lng],{icon:makeIcon(i+1,p.c||0),draggable:true});
+    mk.bindPopup(popupHtml(p));
+    mk.on('dragend',function(e){
+      var ll=e.target.getLatLng();
+      p.lat=+ll.lat.toFixed(6);p.lng=+ll.lng.toFixed(6);
+      mk.setPopupContent(popupHtml(p));markDirty();renderList();
+    });
+    mk.addTo(grp);markers.push(mk);
+  });
+  renderList();
+  $('count').textContent=pins.length;
+  document.title='지도 핀보드 ('+pins.length+')';
+}
+function renderList(){
+  var el=$('list');
+  if(!pins.length){el.innerHTML='<li class="empty">아직 핀이 없어요.<br>위에서 장소를 검색하거나<br>📍 모드로 지도를 눌러 추가해 보세요.</li>';return}
+  el.innerHTML=pins.map(function(p,i){
+    return '<li class="item" data-i="'+i+'">'
+    +'<button class="cdot" style="--pc:'+PALETTE[(p.c||0)%PALETTE.length]+'" title="색 바꾸기" aria-label="색 바꾸기"></button>'
+    +'<div class="meta"><button class="name" title="지도에서 보기">'+(i+1)+'. '+esc(p.name)+'</button>'
+    +'<span class="coords">'+(+p.lat).toFixed(4)+', '+(+p.lng).toFixed(4)+'</span></div>'
+    +'<span class="acts">'
+    +'<button class="ib up" title="위로">▲</button>'
+    +'<button class="ib down" title="아래로">▼</button>'
+    +'<button class="ib ren" title="이름 수정">✎</button>'
+    +'<button class="ib del" title="삭제">✕</button>'
+    +'</span></li>';
+  }).join('');
+}
+function markDirty(){dirty=true;$('dirtyDot').hidden=false}
+function clearDirty(){dirty=false;$('dirtyDot').hidden=true}
+
+/* ---------- 핀 조작 ---------- */
+function addPin(name,lat,lng,url){
+  var p={name:name,lat:+(+lat).toFixed(6),lng:+(+lng).toFixed(6),c:0};
+  if(url&&/^https?:\/\//.test(url))p.url=url;
+  pins.push(p);
+  markDirty();refresh();
+  map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),14),{duration:.8});
+  var mk=markers[markers.length-1];
+  setTimeout(function(){if(mk)mk.openPopup()},850);
+  toast('📍 "'+name+'" 추가됨');
+}
+$('list').addEventListener('click',function(ev){
+  var it=ev.target.closest('.item');if(!it)return;
+  var i=+it.dataset.i,p=pins[i];if(!p)return;
+  if(ev.target.classList.contains('cdot')){p.c=((p.c||0)+1)%PALETTE.length;markDirty();refresh();return}
+  if(ev.target.classList.contains('del')){pins.splice(i,1);markDirty();refresh();return}
+  if(ev.target.classList.contains('up')&&i>0){pins.splice(i-1,0,pins.splice(i,1)[0]);markDirty();refresh();return}
+  if(ev.target.classList.contains('down')&&i<pins.length-1){pins.splice(i+1,0,pins.splice(i,1)[0]);markDirty();refresh();return}
+  if(ev.target.classList.contains('ren')){startRename(it,i);return}
+  if(ev.target.classList.contains('name')){
+    map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),14),{duration:.7});
+    var mk=markers[i];setTimeout(function(){if(mk)mk.openPopup()},750);
+  }
+});
+function startRename(it,i){
+  var nameBtn=it.querySelector('.name');if(!nameBtn)return;
+  var inp=document.createElement('input');
+  inp.className='rein';inp.value=pins[i].name;
+  nameBtn.replaceWith(inp);inp.focus();inp.select();
+  var done=false;
+  function commit(save){
+    if(done)return;done=true;
+    if(save&&inp.value.trim()){pins[i].name=inp.value.trim();markDirty()}
+    refresh();
+  }
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter')commit(true);
+    else if(e.key==='Escape')commit(false);
+  });
+  inp.addEventListener('blur',function(){commit(true)});
+}
+
+/* ---------- 검색: 카카오 로컬(키 있을 때) → 기본 OSM ---------- */
+var busy=false;
+function noResult(q,tip){
+  return '<div class="rmsg">"'+esc(q)+'" 검색 결과가 없어요.<br>'+tip+'</div>';
+}
+function doSearch(){
+  var q=$('q').value.trim();if(!q||busy)return;
+  var box=$('results');box.hidden=false;
+  box.innerHTML='<div class="rmsg">검색 중…</div>';
+  busy=true;$('searchBtn').disabled=true;
+  var run=kakaoKey?kakaoSearch(q,box):nominatimSearch(q,box);
+  run.finally(function(){busy=false;$('searchBtn').disabled=false});
+}
+function kakaoSearch(q,box){
+  var url='https://dapi.kakao.com/v2/local/search/keyword.json?size=12&query='+encodeURIComponent(q);
+  return fetch(url,{headers:{'Authorization':'KakaoAK '+kakaoKey}}).then(function(res){
+    return res.json().catch(function(){return {}}).then(function(body){
+      return {status:res.status,ok:res.ok,body:body};
+    });
+  }).then(function(r){
+    if(r.status===401||r.status===403){
+      box.innerHTML='<div class="rmsg">카카오가 요청을 거부했어요 (HTTP '+r.status+').<br>'
+      +kakaoErrHtml((r.body&&(r.body.message||r.body.msg))||'')+'</div>';
+      return;
+    }
+    if(!r.ok)throw new Error('http'+r.status);
+    var docs=(r.body&&r.body.documents)||[];
+    if(!docs.length){
+      box.innerHTML=noResult(q,'맞춤법을 살짝 바꿔 보거나, <b>📍 지도 눌러서 추가</b>로 직접 놓을 수 있어요.');
+      return;
+    }
+    box.innerHTML=docs.map(function(d){
+      var cat=String(d.category_name||'').split('>').pop().trim();
+      var addr=d.road_address_name||d.address_name||'';
+      var sub=[addr,cat].filter(Boolean).join(' · ');
+      return '<button class="ritem" data-name="'+esc(d.place_name)+'" data-lat="'+esc(d.y)+'" data-lng="'+esc(d.x)+'" data-url="'+esc(d.place_url||'')+'">'
+      +'<span class="rname">'+esc(d.place_name)+'</span>'
+      +(sub?'<span class="rsub">'+esc(sub)+'</span>':'')
+      +'</button>';
+    }).join('');
+  }).catch(function(){
+    box.innerHTML='<div class="rmsg">카카오 연결 실패 — 기본 검색으로 다시 시도할게요…</div>';
+    return nominatimSearch(q,box);
+  });
+}
+function nominatimSearch(q,box){
+  var url='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q);
+  return fetch(url,{headers:{'Accept':'application/json'}}).then(function(res){
+    if(!res.ok)throw new Error('http'+res.status);
+    return res.json();
+  }).then(function(rows){
+    if(!rows.length){
+      box.innerHTML=noResult(q,'작은 가게·명소는 기본 지도 데이터에 없을 수 있어요 — <b>검색 설정</b>에서 카카오 키를 넣으면 거의 다 나와요. 지금은 <b>📍 지도 눌러서 추가</b>도 가능해요.');
+      return;
+    }
+    box.innerHTML=rows.map(function(row){
+      var parts=String(row.display_name||'').split(',');
+      var main=(parts.shift()||'').trim();
+      var rest=parts.join(',').trim();
+      return '<button class="ritem" data-name="'+esc(main)+'" data-lat="'+esc(row.lat)+'" data-lng="'+esc(row.lon)+'">'
+      +'<span class="rname">'+esc(main)+'</span>'
+      +(rest?'<span class="rsub">'+esc(rest)+'</span>':'')
+      +'</button>';
+    }).join('');
+  }).catch(function(){
+    box.innerHTML='<div class="rmsg">검색 서버에 연결하지 못했어요.<br>이 파일을 컴퓨터에 저장해서 브라우저로 열면 검색이 돼요. 지금은 <b>📍 지도 눌러서 추가</b>로 핀을 놓을 수 있어요.</div>';
+  });
+}
+$('results').addEventListener('click',function(ev){
+  var b=ev.target.closest('.ritem');if(!b)return;
+  var nm=b.dataset.name||$('q').value.trim()||'핀';
+  addPin(nm,parseFloat(b.dataset.lat),parseFloat(b.dataset.lng),b.dataset.url||'');
+  $('results').hidden=true;
+});
+$('searchBtn').addEventListener('click',doSearch);
+$('q').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.search'))$('results').hidden=true;
+});
+
+/* ---------- 카카오 키 설정 ---------- */
+function updateSearchStatus(){
+  var el=$('skStatus');
+  if(kakaoKey){el.textContent='· 카카오 검색 연결됨 — 작은 가게까지 OK';el.className='stat ok'}
+  else{el.textContent='· 기본 검색(OSM) — 카카오 키를 넣으면 작은 가게까지';el.className='stat'}
+}
+function kakaoErrHtml(msg){
+  var raw=msg?'카카오 응답: <b>'+esc(msg)+'</b><br>':'';
+  if(/OPEN_MAP_AND_LOCAL|disabled/i.test(msg||'')){
+    return raw+'👉 키는 맞는데 <b>이 앱의 카카오맵 API가 꺼져 있어서</b>예요. 2024.12부터 새 앱은 켜줘야 해요.<br>'
+    +'내 애플리케이션 → 이 앱 → <b>제품 설정 › 카카오맵 › 사용 설정</b> → 상태 <b>ON</b> → 돌아와서 다시 [적용]을 눌러 주세요.';
+  }
+  return raw+'👉 <b>앱 설정 › 앱 키</b>의 <b>REST API 키</b>가 맞는지, 복사가 잘리지 않았는지 확인해 주세요. JavaScript 키·네이티브 앱 키로는 안 돼요.';
+}
+function showKeyMsg(html){var el=$('keyMsg');el.innerHTML=html;el.hidden=false;$('setbox').open=true}
+function hideKeyMsg(){$('keyMsg').hidden=true}
+$('keyApply').addEventListener('click',function(){
+  var v=$('kakaoKeyInput').value.trim();
+  if(!v){toast('REST API 키를 먼저 붙여넣어 주세요');return}
+  var btn=$('keyApply');btn.disabled=true;btn.textContent='확인 중…';
+  fetch('https://dapi.kakao.com/v2/local/search/keyword.json?size=1&query='+encodeURIComponent('카페'),{headers:{'Authorization':'KakaoAK '+v}})
+  .then(function(res){
+    return res.json().catch(function(){return {}}).then(function(body){
+      return {status:res.status,ok:res.ok,body:body};
+    });
+  })
+  .then(function(r){
+    if(r.status===401||r.status===403){
+      showKeyMsg(kakaoErrHtml((r.body&&(r.body.message||r.body.msg))||''));
+      toast('키가 거부됐어요 — 아래 안내를 확인해 주세요');
+      return;
+    }
+    if(!r.ok)throw new Error('http');
+    kakaoKey=v;store.kakaoKey=v;markDirty();updateSearchStatus();hideKeyMsg();
+    toast('✅ 카카오 검색 연결! 저장(Ctrl+S)해야 파일에 기억돼요');
+  })
+  .catch(function(){
+    kakaoKey=v;store.kakaoKey=v;markDirty();updateSearchStatus();
+    toast('네트워크 확인은 실패했지만 키는 적용해 뒀어요');
+  })
+  .finally(function(){btn.disabled=false;btn.textContent='적용'});
+});
+$('keyClear').addEventListener('click',function(){
+  if(!kakaoKey&&!$('kakaoKeyInput').value)return;
+  kakaoKey='';store.kakaoKey='';$('kakaoKeyInput').value='';
+  markDirty();updateSearchStatus();
+  toast('카카오 키를 지웠어요 — 저장해야 파일에 반영돼요');
+});
+$('kakaoKeyInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')$('keyApply').click();
+});
+
+/* ---------- 남해 후보 칩 ---------- */
+var NAMHAE=['남해 상주은모래비치','쌍홍문','물건리 방조어부림','유스타운바다정원','상상양떼목장','방죽포해수욕장','섬이정원','용문사','다랭이마을','파라다랑스','독일마을','양마르뜨언덕'];
+$('chips').innerHTML=NAMHAE.map(function(n){return '<button class="chip">'+esc(n)+'</button>'}).join('');
+$('chips').addEventListener('click',function(e){
+  var c=e.target.closest('.chip');if(!c)return;
+  $('q').value=c.textContent;doSearch();
+});
+
+/* ---------- 클릭 추가 모드 ---------- */
+var addBtn=$('clickAdd');
+function setClickMode(v){
+  clickMode=v;
+  addBtn.classList.toggle('on',v);
+  $('map').classList.toggle('adding',v);
+  addBtn.textContent=v?'📍 추가 모드 켜짐':'📍 지도 눌러서 추가';
+}
+addBtn.addEventListener('click',function(){setClickMode(!clickMode)});
+map.on('click',function(e){
+  if(!clickMode)return;
+  var ll=e.latlng;
+  var html='<div class="npform"><input id="npName" type="text" placeholder="핀 이름" autocomplete="off">'
+  +'<button id="npOk" class="btn primary" type="button">여기에 추가</button></div>';
+  var pop=L.popup({closeButton:true}).setLatLng(ll).setContent(html).openOn(map);
+  var inp=$('npName'),ok=$('npOk');
+  if(!inp||!ok)return;
+  setTimeout(function(){inp.focus()},60);
+  function submit(){
+    var nm=inp.value.trim()||'이름 없는 핀';
+    map.closePopup(pop);
+    addPin(nm,ll.lat,ll.lng,'');
+  }
+  ok.addEventListener('click',submit);
+  inp.addEventListener('keydown',function(ev){if(ev.key==='Enter')submit()});
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&clickMode){setClickMode(false);map.closePopup()}
+});
+
+/* ---------- 전체 보기 / 배경지도 ---------- */
+function fitAll(){
+  if(!pins.length){toast('아직 핀이 없어요');return}
+  var b=L.latLngBounds(pins.map(function(p){return [p.lat,p.lng]}));
+  map.fitBounds(b.pad(0.25),{maxZoom:14});
+}
+$('fitAll').addEventListener('click',fitAll);
+$('basemap').addEventListener('change',function(){
+  map.removeLayer(curLayer);
+  curLayer=layers[this.value]||layers.osm;
+  curLayer.addTo(map);
+});
+
+/* ---------- 저장: 데이터가 담긴 HTML을 다시 파일로 ---------- */
+function buildHtml(){
+  var open=SNAP.indexOf('id="'+PD_ID+'"');
+  if(open<0)open=SNAP.indexOf("id='"+PD_ID+"'");
+  if(open<0)return null;
+  var s=SNAP.indexOf('>',open)+1;
+  var e=SNAP.indexOf('</scr'+'ipt>',s);
+  if(s<=0||e<0)return null;
+  var json=JSON.stringify({pins:pins,kakaoKey:kakaoKey}).replace(/</g,'\\u003c');
+  return SNAP.slice(0,s)+json+SNAP.slice(e);
+}
+function download(html){
+  var a=document.createElement('a');
+  var url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.href=url;a.download='핀지도.html';document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove()},400);
+  clearDirty();toast('⬇️ 데이터가 담긴 새 HTML을 내려받았어요 — 기존 파일과 바꿔치기하면 돼요');
+}
+function saveHtml(){
+  var html=buildHtml();
+  if(!html){toast('저장용 HTML 생성에 실패했어요');return}
+  if(window.showSaveFilePicker){
+    var p=fileHandle
+      ?Promise.resolve(fileHandle)
+      :window.showSaveFilePicker({suggestedName:'핀지도.html',types:[{description:'HTML 파일',accept:{'text/html':['.html']}}]}).then(function(h){fileHandle=h;return h});
+    p.then(function(h){return h.createWritable()})
+     .then(function(w){return w.write(new Blob([html],{type:'text/html'})).then(function(){return w.close()})})
+     .then(function(){clearDirty();toast('💾 파일에 저장했어요')})
+     .catch(function(err){
+       if(err&&err.name==='AbortError')return;
+       fileHandle=null;download(html);
+     });
+  }else{
+    download(html);
+  }
+}
+$('saveBtn').addEventListener('click',saveHtml);
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&(e.key==='s'||e.key==='S')){e.preventDefault();saveHtml()}
+});
+window.addEventListener('beforeunload',function(e){
+  if(dirty){e.preventDefault();e.returnValue=''}
+});
+
+/* ---------- 토스트 ---------- */
+var toastTimer=null;
+function toast(msg){
+  var t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show')},2800);
+}
+
+/* ---------- 시작 ---------- */
+$('kakaoKeyInput').value=kakaoKey;
+updateSearchStatus();
+if(!kakaoKey)$('setbox').open=true;
+refresh();
+setClickMode(false);
+if(pins.length){setTimeout(fitAll,150)}
+})();
+</script></body></html>
