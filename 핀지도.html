@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko"><head>
+<html lang="ko">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
@@ -42,7 +43,7 @@ h1{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0;display:flex;al
 .rsub{display:block;font-size:11.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rmsg{padding:12px;font-size:12.5px;color:var(--sub);line-height:1.6}
 .rmsg b{color:var(--text)}
-.tools{display:flex;gap:8px;margin-top:10px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .hint{margin:10px 2px 0;font-size:11.5px;color:var(--sub);line-height:1.5}
 kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px}
 .fold{border-bottom:1px solid var(--line);padding:10px 16px 14px}
@@ -96,8 +97,11 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
 .leaflet-bar a:hover,.leaflet-bar a:focus{background:var(--line);color:var(--text)}
 .leaflet-control-attribution{background:rgba(15,17,20,.75)!important;color:#7b8492!important}
 .leaflet-control-attribution a{color:#9aa6b6!important}
-.pp-name{font-weight:700;font-size:14px}
-.pp-co{font:500 11px var(--mono);color:var(--sub);display:block;margin-top:3px}
+.pw{position:relative;width:26px;height:36px}
+.pl{position:absolute;top:37px;left:50%;transform:translateX(-50%);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 11.5px/1 Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#1b1d21;background:var(--pc);padding:5px 8px;border-radius:9px 9px 9px 3px;border:1px solid rgba(0,0,0,.4);box-shadow:0 2px 7px rgba(0,0,0,.5)}
+#map.nolabel .pl{display:none}
+.idx{font:700 10.5px var(--mono);color:var(--sub)}
+.pp-name{font-weight:700;font-size:14px}.pp-co{font:500 11px var(--mono);color:var(--sub);display:block;margin-top:3px}
 .pp-link{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:var(--bubble);text-decoration:none}
 .pp-link:hover{text-decoration:underline}
 .npform{display:flex;flex-direction:column;gap:8px;min-width:190px}
@@ -115,90 +119,24 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
   *{transition:none!important}
 }
 </style>
-</head><style>html {
-                --sac-user-select: auto;
-            }
-            [role="slider"], input, textarea, video[src], :empty {
-                --sac-user-select: nil;
-            }
-            label:not(:empty) {
-                --sac-user-select: auto;
-            }
-
-            html, html *,
-            html *[style], html *[class] {
-                -webkit-touch-callout: default !important; -moz-user-select: var(--sac-user-select) !important; -webkit-user-select: var(--sac-user-select) !important; user-select: var(--sac-user-select) !important;
-            }
-
-            html *:hover, html *:link, html *:visited, html *:active {
-                -webkit-touch-callout: default !important; -moz-user-select: var(--sac-user-select) !important; -webkit-user-select: var(--sac-user-select) !important; user-select: var(--sac-user-select) !important;
-            }
-
-            html *::before, html *::after {
-                -webkit-touch-callout: default !important; -moz-user-select: auto !important; -webkit-user-select: auto !important; user-select: auto !important;
-            }
-
-            *:hover>img[src]{pointer-events:auto !important;}
-
-            [msmtwejkzrqa] :not(input):not(textarea)::selection{ background-color: Highlight !important; color: HighlightText !important;}
-            [msmtwejkzrqa] :not(input):not(textarea)::-moz-selection{ background-color: Highlight !important; color: HighlightText !important;}
-            [xfcklblvkjsj] *{ -webkit-tap-highlight-color: rgba(0, 0, 0, 0.18) !important;}
-
-            [oseksntfvucn]>[jttkfplemwzo]{pointer-events:none !important;}
-            [oseksntfvucn]>*{z-index:inherit !important;}
-
-            html[gykqyzwufxpz] *:hover, html[gykqyzwufxpz] *:hover * { cursor:text !important;}
-            html[gykqyzwufxpz] :not(input):not(textarea)::selection {background-color: rgba(255, 156, 179, 0.5) !important;}
-            html[gykqyzwufxpz] :not(input):not(textarea)::-moz-selection {background-color: rgba(255, 156, 179, 0.5) !important;}
-
-            img[meefgeibrtqx="4"]{display:none !important;}
-            [meefgeibrtqx="7"]{padding:0 !important;overflow:hidden !important;}
-            [meefgeibrtqx="7"]>img[meefgeibrtqx="4"]:first-child{
-                display:inline-block !important;
-                position: relative !important;
-                top: auto !important;
-                left: auto !important;
-                bottom: auto !important;
-                right: auto !important;
-                opacity: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                outline: 0 !important;
-                border: 0 !important;
-                box-sizing: border-box !important;
-                transform: initial !important;
-                -moz-user-select: none !important;
-                -webkit-user-select: none !important;
-                user-select: none !important;
-                z-index:1 !important;
-                float: left !important;
-                cursor:inherit !important;
-                pointer-events:inherit !important;
-                border-radius: inherit !important;
-                background:none !important;
-            }
-
-            html[vzhwnfgxnool] *::before, html[vzhwnfgxnool] *::after {
-                pointer-events: none !important;
-            }</style>
+</head>
 <body>
 <div id="app">
   <aside id="panel">
     <div class="head">
       <div class="title-row">
         <h1>지도 핀보드 <span id="count" class="count">0</span></h1>
-        <button id="saveBtn" class="btn primary" title="핀 데이터가 담긴 HTML로 저장 (Ctrl+S)">저장<span id="dirtyDot" class="dot" hidden=""></span></button>
+        <button id="saveBtn" class="btn primary" title="핀 데이터가 담긴 HTML로 저장 (Ctrl+S)">저장<span id="dirtyDot" class="dot" hidden></span></button>
       </div>
       <div class="search">
         <input id="q" type="text" placeholder="장소·가게 이름 검색" autocomplete="off">
         <button id="searchBtn" class="btn">검색</button>
-        <div id="results" class="results" hidden=""></div>
+        <div id="results" class="results" hidden></div>
       </div>
       <div class="tools">
         <button id="clickAdd" class="btn ghost">📍 지도 눌러서 추가</button>
         <button id="fitAll" class="btn ghost">전체 보기</button>
+        <button id="labelToggle" class="btn ghost">🏷 이름 숨기기</button>
       </div>
       <p class="hint">저장(<kbd>Ctrl</kbd>+<kbd>S</kbd>)하면 핀과 설정이 이 HTML 파일 안에 함께 담겨요. 핀은 드래그로 위치를 다듬을 수 있어요.</p>
     </div>
@@ -209,7 +147,7 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
         <button id="keyApply" class="btn">적용</button>
         <button id="keyClear" class="btn ghost" title="키 지우기">지우기</button>
       </div>
-      <p id="keyMsg" class="keymsg" hidden=""></p>
+      <p id="keyMsg" class="keymsg" hidden></p>
       <ol class="guide">
         <li><a href="https://developers.kakao.com" target="_blank" rel="noopener">developers.kakao.com</a> 로그인 → 내 애플리케이션 → 애플리케이션 추가하기</li>
         <li>만든 앱의 <b>제품 설정 › 카카오맵 › 사용 설정</b>에서 상태를 <b>ON</b> — 2024.12부터 필수라 안 켜면 403이 나요</li>
@@ -218,7 +156,7 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
       </ol>
       <p class="hint">키는 이 파일 안에 저장돼요. 파일을 다른 사람과 공유하면 키도 함께 전달되는 점만 기억해 주세요.</p>
     </details>
-    <details class="fold chipbox" open="">
+    <details class="fold chipbox" open>
       <summary>남해 여행 후보 · 누르면 바로 검색</summary>
       <div id="chips" class="chips"></div>
     </details>
@@ -235,7 +173,7 @@ kbd{font:600 10.5px var(--mono);background:var(--panel2);border:1px solid var(--
   <div id="map"></div>
 </div>
 <div id="toast" role="status"></div>
-<script id="__PINDATA__" type="application/json">{"pins":[{"name":"상주은모래비치","lat":34.720637,"lng":127.988767,"c":0,"url":"http://place.map.kakao.com/7931108"},{"name":"쌍홍문","lat":34.751667,"lng":127.982348,"c":0,"url":"http://place.map.kakao.com/10596989"},{"name":"물건리 방조어부림","lat":34.796877,"lng":128.050447,"c":0,"url":"http://place.map.kakao.com/7873247"},{"name":"남해바다정원","lat":34.807912,"lng":127.948333,"c":0,"url":"http://place.map.kakao.com/187505440"},{"name":"남해상상양떼목장편백숲","lat":34.936046,"lng":127.889619,"c":0,"url":"http://place.map.kakao.com/27606039"},{"name":"방죽포해수욕장","lat":34.630851,"lng":127.793419,"c":0,"url":"http://place.map.kakao.com/8323548"},{"name":"섬이정원","lat":34.752249,"lng":127.860651,"c":0,"url":"http://place.map.kakao.com/2036248218"},{"name":"남해 용문사","lat":34.787967,"lng":127.922962,"c":0,"url":"http://place.map.kakao.com/8020432"},{"name":"다랭이마을","lat":34.72753,"lng":127.894048,"c":0,"url":"http://place.map.kakao.com/9700708"},{"name":"파라다랑스","lat":34.74052,"lng":127.959543,"c":0,"url":"http://place.map.kakao.com/1435664781"},{"name":"남해독일마을","lat":34.800073,"lng":128.038548,"c":0,"url":"http://place.map.kakao.com/11086040"},{"name":"남해양떼목장 양마르뜨언덕","lat":34.79059,"lng":128.024228,"c":0,"url":"http://place.map.kakao.com/487252138"}],"kakaoKey":"02a79af99b75c4db1072a96492d6188a"}</script>
+<script id="__PINDATA__" type="application/json">{"pins":[{"name":"상주은모래비치","lat":34.720637,"lng":127.988767,"c":0,"url":"http://place.map.kakao.com/7931108"},{"name":"쌍홍문","lat":34.751667,"lng":127.982348,"c":0,"url":"http://place.map.kakao.com/10596989"},{"name":"물건리 방조어부림","lat":34.796877,"lng":128.050447,"c":0,"url":"http://place.map.kakao.com/7873247"},{"name":"남해바다정원","lat":34.807912,"lng":127.948333,"c":0,"url":"http://place.map.kakao.com/187505440"},{"name":"남해상상양떼목장편백숲","lat":34.936046,"lng":127.889619,"c":0,"url":"http://place.map.kakao.com/27606039"},{"name":"방죽포해수욕장","lat":34.630851,"lng":127.793419,"c":0,"url":"http://place.map.kakao.com/8323548"},{"name":"섬이정원","lat":34.752249,"lng":127.860651,"c":0,"url":"http://place.map.kakao.com/2036248218"},{"name":"남해 용문사","lat":34.787967,"lng":127.922962,"c":0,"url":"http://place.map.kakao.com/8020432"},{"name":"다랭이마을","lat":34.72753,"lng":127.894048,"c":0,"url":"http://place.map.kakao.com/9700708"},{"name":"파라다랑스","lat":34.74052,"lng":127.959543,"c":0,"url":"http://place.map.kakao.com/1435664781"},{"name":"남해독일마을","lat":34.800073,"lng":128.038548,"c":0,"url":"http://place.map.kakao.com/11086040"},{"name":"남해양떼목장 양마르뜨언덕","lat":34.79059,"lng":128.024228,"c":0,"url":"http://place.map.kakao.com/487252138"}],"kakaoKey":"02a79af99b75c4db1072a96492d6188a","showLabels":true}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (function(){
@@ -248,17 +186,19 @@ function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
 
 /* ---------- 상태 (v1 배열 포맷도 호환) ---------- */
-var store={pins:[],kakaoKey:''};
+var store={pins:[],kakaoKey:'',showLabels:true};
 try{
   var raw=JSON.parse($(PD_ID).textContent||'null');
   if(Array.isArray(raw))store.pins=raw;
   else if(raw&&typeof raw==='object'){
     store.pins=Array.isArray(raw.pins)?raw.pins:[];
     store.kakaoKey=typeof raw.kakaoKey==='string'?raw.kakaoKey:'';
+    if(raw.showLabels===false)store.showLabels=false;
   }
 }catch(e){}
 var pins=store.pins;
 var kakaoKey=store.kakaoKey;
+var showLabels=store.showLabels;
 var dirty=false,fileHandle=null,clickMode=false,markers=[];
 
 /* ---------- 지도 ---------- */
@@ -271,15 +211,19 @@ var layers={
 var curLayer=layers.osm.addTo(map);
 var grp=L.layerGroup().addTo(map);
 
-function pinSvg(n,color){
-  return '<svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">'
-  +'<path d="M16 1C7.7 1 1 7.6 1 15.8 1 26 16 41 16 41s15-15 15-25.2C31 7.6 24.3 1 16 1z" fill="'+color+'" stroke="rgba(0,0,0,.4)" stroke-width="1.4"/>'
-  +'<circle cx="16" cy="15.5" r="10.2" fill="rgba(255,255,255,.94)"/>'
-  +'<text x="16" y="20" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="11.5" font-weight="800" fill="#1c1f24">'+n+'</text>'
+function pinSvg(color){
+  return '<svg width="26" height="36" viewBox="0 0 26 36" xmlns="http://www.w3.org/2000/svg">'
+  +'<path d="M13 1C6.4 1 1 6.3 1 12.8 1 21.6 13 35 13 35s12-13.4 12-22.2C25 6.3 19.6 1 13 1z" fill="'+color+'" stroke="rgba(0,0,0,.45)" stroke-width="1.4"/>'
+  +'<circle cx="13" cy="12.6" r="4.6" fill="rgba(255,255,255,.95)"/>'
   +'</svg>';
 }
-function makeIcon(n,ci){
-  return L.divIcon({className:'',html:pinSvg(n,PALETTE[ci%PALETTE.length]),iconSize:[32,42],iconAnchor:[16,41],popupAnchor:[0,-38]});
+function makeIcon(p){
+  var color=PALETTE[(p.c||0)%PALETTE.length];
+  return L.divIcon({
+    className:'',
+    html:'<div class="pw">'+pinSvg(color)+'<span class="pl" style="--pc:'+color+'">'+esc(p.name)+'</span></div>',
+    iconSize:[26,36],iconAnchor:[13,35],popupAnchor:[0,-32]
+  });
 }
 function popupHtml(p){
   var h='<span class="pp-name">'+esc(p.name)+'</span>'
@@ -294,7 +238,7 @@ function popupHtml(p){
 function refresh(){
   grp.clearLayers();markers=[];
   pins.forEach(function(p,i){
-    var mk=L.marker([p.lat,p.lng],{icon:makeIcon(i+1,p.c||0),draggable:true});
+    var mk=L.marker([p.lat,p.lng],{icon:makeIcon(p),draggable:true,riseOnHover:true});
     mk.bindPopup(popupHtml(p));
     mk.on('dragend',function(e){
       var ll=e.target.getLatLng();
@@ -313,8 +257,8 @@ function renderList(){
   el.innerHTML=pins.map(function(p,i){
     return '<li class="item" data-i="'+i+'">'
     +'<button class="cdot" style="--pc:'+PALETTE[(p.c||0)%PALETTE.length]+'" title="색 바꾸기" aria-label="색 바꾸기"></button>'
-    +'<div class="meta"><button class="name" title="지도에서 보기">'+(i+1)+'. '+esc(p.name)+'</button>'
-    +'<span class="coords">'+(+p.lat).toFixed(4)+', '+(+p.lng).toFixed(4)+'</span></div>'
+    +'<div class="meta"><button class="name" title="지도에서 보기">'+esc(p.name)+'</button>'
+    +'<span class="coords"><span class="idx">'+(i+1)+'</span> · '+(+p.lat).toFixed(4)+', '+(+p.lng).toFixed(4)+'</span></div>'
     +'<span class="acts">'
     +'<button class="ib up" title="위로">▲</button>'
     +'<button class="ib down" title="아래로">▼</button>'
@@ -545,6 +489,14 @@ function fitAll(){
   map.fitBounds(b.pad(0.25),{maxZoom:14});
 }
 $('fitAll').addEventListener('click',fitAll);
+function applyLabels(){
+  $('map').classList.toggle('nolabel',!showLabels);
+  $('labelToggle').textContent=showLabels?'🏷 이름 숨기기':'🏷 이름 표시';
+  $('labelToggle').classList.toggle('on',!showLabels);
+}
+$('labelToggle').addEventListener('click',function(){
+  showLabels=!showLabels;store.showLabels=showLabels;applyLabels();markDirty();
+});
 $('basemap').addEventListener('change',function(){
   map.removeLayer(curLayer);
   curLayer=layers[this.value]||layers.osm;
@@ -559,7 +511,7 @@ function buildHtml(){
   var s=SNAP.indexOf('>',open)+1;
   var e=SNAP.indexOf('</scr'+'ipt>',s);
   if(s<=0||e<0)return null;
-  var json=JSON.stringify({pins:pins,kakaoKey:kakaoKey}).replace(/</g,'\\u003c');
+  var json=JSON.stringify({pins:pins,kakaoKey:kakaoKey,showLabels:showLabels}).replace(/</g,'\\u003c');
   return SNAP.slice(0,s)+json+SNAP.slice(e);
 }
 function download(html){
@@ -606,9 +558,12 @@ function toast(msg){
 /* ---------- 시작 ---------- */
 $('kakaoKeyInput').value=kakaoKey;
 updateSearchStatus();
+applyLabels();
 if(!kakaoKey)$('setbox').open=true;
 refresh();
 setClickMode(false);
 if(pins.length){setTimeout(fitAll,150)}
 })();
-</script></body></html>
+</script>
+</body>
+</html>
